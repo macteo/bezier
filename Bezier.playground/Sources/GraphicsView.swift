@@ -5,7 +5,7 @@ public class GraphicsView : UIView {
     var closed = false
     let useHermite = true
     var interpolationAlpha : CGFloat = 0.35
-    var showHandles = false
+    var showHandles = true
     var showCurve = true
     var lineWidth : CGFloat = 6
     var lineColor : UIColor = UIColor.orange.withAlphaComponent(0.7)

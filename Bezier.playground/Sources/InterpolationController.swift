@@ -29,7 +29,7 @@ public class InterpolationController : UIViewController {
         graphicsView.backgroundColor = .clear
         view.addSubview(graphicsView)
         
-        graphicsView.interpolationPoints = [CGPoint(x: 50, y: 50), CGPoint(x: 150, y: 150), CGPoint(x: 300, y: 50)]
+        graphicsView.interpolationPoints = []
         graphicsView.setNeedsDisplay()
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(gesture:)))
@@ -43,9 +43,16 @@ public class InterpolationController : UIViewController {
     }
     
     func tap(gesture: UITapGestureRecognizer) {
+        mapView.removeOverlays(mapView.overlays)
         let point = gesture.location(in: graphicsView)
         graphicsView.interpolationPoints.append(point)
         graphicsView.setNeedsDisplay()
+        
+        let mapPoint = gesture.location(in: mapView)
+        
+        let coordinate = mapView.convert(mapPoint, toCoordinateFrom: view)
+        locations.append(coordinate)
+        
         matchRoute()
     }
     
@@ -61,11 +68,6 @@ public class InterpolationController : UIViewController {
         
         let options = MapMatchOptions()
         options.profile = .walking
-
-        locations.append(CLLocationCoordinate2D(latitude: 45.895529, longitude: 11.037185))
-        locations.append(CLLocationCoordinate2D(latitude: 45.894141, longitude: 11.037966))
-        locations.append(CLLocationCoordinate2D(latitude: 45.893895, longitude: 11.038827))
-        locations.append(CLLocationCoordinate2D(latitude: 45.892950, longitude: 11.040166))
         
         guard locations.count >= 2 else { return }
         
@@ -80,7 +82,6 @@ public class InterpolationController : UIViewController {
                 print("No routes found")
                 return
             }
-            print("Calculating routes")
             
             let merge = routes.flatMap { $0 }
             
