@@ -3,10 +3,13 @@
 import UIKit
 import PlaygroundSupport
 
-let timingParameters = UICubicTimingParameters(controlPoint1: CGPoint(x:0, y:0), controlPoint2: CGPoint(x:1, y:1))
+let bezierController = BezierController()
+let interpolationController = InterpolationController()
 
-var rootVC = BezierController()
+let frame = CGRect(x: 0, y: 0, width: 500, height: 520)
 
-rootVC.view.frame = CGRect(x: 0, y: 0, width: 500, height: 520)
-PlaygroundPage.current.liveView = rootVC.view
+bezierController.view.frame = frame
+interpolationController.view.frame = frame
+
+PlaygroundPage.current.liveView = interpolationController.view
 PlaygroundPage.current.needsIndefiniteExecution = true

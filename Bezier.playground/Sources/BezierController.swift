@@ -1,6 +1,5 @@
 import UIKit
 
-
 let canvasSize : CGFloat = 300
 
 extension Double {
@@ -40,7 +39,7 @@ public class BezierController : UIViewController {
     let ballPadding : CGFloat = 30
     
     let control1Label = UILabel(frame: CGRect(x: 20, y: -14, width: 80, height: 40))
-    let control2Label = UILabel(frame: CGRect(x: -25, y: 14, width: 80, height: 40))
+    let control2Label = UILabel(frame: CGRect(x: -25, y: 18, width: 80, height: 40))
     
     var startAnimationButton : UIButton!
     var resetAnimationButton : UIButton!
@@ -63,7 +62,7 @@ public class BezierController : UIViewController {
         
         canvas.frame = CGRect(x: padding, y: padding, width: canvasSize, height: canvasSize)
         canvas.borderColor = UIColor.white.cgColor
-        canvas.borderWidth = 0.5
+        canvas.borderWidth = 1.0
         view.layer.addSublayer(canvas)
         
         verticalProjection.frame = CGRect(x: padding, y: padding, width: 1, height: canvasSize + ballPadding + ballSize / 2)
