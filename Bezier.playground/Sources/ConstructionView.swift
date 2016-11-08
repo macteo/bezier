@@ -14,7 +14,7 @@ public class ConstructionView : UIView {
     let rightArm = CAShapeLayer()
     let armsConnection = CAShapeLayer()
     let handleSize : CGFloat = 8
-    let animationDuration : TimeInterval = 1
+    let animationDuration : TimeInterval = 3
     let padding : CGFloat = 100
     
     let leftArmBall = UIView()
@@ -30,6 +30,7 @@ public class ConstructionView : UIView {
     
     let firstBridgeBall = UIView()
     let secondBridgeBall = UIView()
+    let thirdBridgeBall = UIView()
     
     override public init(frame: CGRect) {
         super.init(frame: frame)
@@ -192,6 +193,11 @@ public class ConstructionView : UIView {
         secondBridgeBall.backgroundColor = .clear
         addSubview(secondBridgeBall)
         
+        thirdBridgeBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
+        thirdBridgeBall.layer.cornerRadius = armBallSize / 2
+        thirdBridgeBall.backgroundColor = .clear
+        addSubview(thirdBridgeBall)
+        
         let firstBridgePath = UIBezierPath()
         firstBridgePath.move(to: startPoint)
         firstBridgePath.addLine(to: controlPoint1)
@@ -242,6 +248,9 @@ public class ConstructionView : UIView {
         
         firstBridgeBall.center = leftArmBall.center
         secondBridgeBall.center = armsConnectionBall.center
+        thirdBridgeBall.center = leftArmBall.center
+        
+        joinBezier.strokeColor = UIColor.clear.cgColor
     }
     
     func animate() {
@@ -249,11 +258,16 @@ public class ConstructionView : UIView {
         resetAnimationButton.isEnabled = false
         startAnimationButton.isEnabled = false
         
+        joinBezier.strokeColor = UIColor.red.cgColor
+        joinBezier.strokeStart = 0.0
+        joinBezier.strokeEnd = 0.0
+        
         firstBridge.strokeColor = UIColor.green.cgColor
         secondBridge.strokeColor = UIColor.green.cgColor
         thirdBridge.strokeColor = UIColor.green.cgColor
         firstBridgeBall.backgroundColor = .red
         secondBridgeBall.backgroundColor = .red
+        thirdBridgeBall.backgroundColor = .red
         
         let animatorLinear = UIViewPropertyAnimator(duration: self.animationDuration, curve: .linear, animations: {
             self.leftArmBall.center = self.padded(self.controlPoint1)
@@ -279,11 +293,7 @@ public class ConstructionView : UIView {
         
         let displayLink = CADisplayLink(target: self, selector: #selector(update(displayLink:)))
         displayLink.preferredFramesPerSecond = 60
-        
-        // let displayLink = CADisplayLink(target: self, selector: #selector(update))
         displayLink.add(to: RunLoop.main, forMode: .defaultRunLoopMode)
-        // displayLink.add(to: RunLoop.main, forMode: .UITrackingRunLoopMode)
-        // displayLink.add(to: RunLoop.main, forMode: .commonModes)
         
         animatorLinear.addCompletion {
             _ in
@@ -295,9 +305,6 @@ public class ConstructionView : UIView {
             self.firstBridge.removeAllAnimations()
             self.secondBridge.removeAllAnimations()
             displayLink.remove(from: RunLoop.main, forMode: .defaultRunLoopMode)
-            // displayLink.remove(from: RunLoop.main, forMode: .UITrackingRunLoopMode)
-            // displayLink.invalidate()
-            // displayLink.remove(from: RunLoop.main, forMode: .commonModes)
         }
         animatorLinear.startAnimation()
         
@@ -332,6 +339,27 @@ public class ConstructionView : UIView {
         fourthAnimation.fillMode = kCAFillModeBoth
         fourthAnimation.isRemovedOnCompletion = false
         secondBridgeBall.layer.add(fourthAnimation, forKey:fourthAnimation.keyPath)
+        
+        let fifthBridgePath = UIBezierPath()
+        fifthBridgePath.move(to: padded(startPoint))
+        fifthBridgePath.addCurve(to: padded(endPoint), controlPoint1: padded(controlPoint1), controlPoint2: padded(controlPoint2))
+        
+        let fifthAnimation = CAKeyframeAnimation(keyPath: "position")
+        fifthAnimation.path = fifthBridgePath.cgPath
+        fifthAnimation.duration = animationDuration
+        fifthAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
+        fifthAnimation.fillMode = kCAFillModeBoth
+        fifthAnimation.isRemovedOnCompletion = false
+        thirdBridgeBall.layer.add(fifthAnimation, forKey:fifthAnimation.keyPath)
+        
+        let strokeAnimation = CABasicAnimation(keyPath: "strokeEnd")
+        strokeAnimation.fromValue = 0.0
+        strokeAnimation.toValue = 1.0
+        strokeAnimation.duration = animationDuration
+        strokeAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
+        strokeAnimation.fillMode = kCAFillModeBoth
+        strokeAnimation.isRemovedOnCompletion = false
+        joinBezier.add(strokeAnimation, forKey:strokeAnimation.keyPath)
     }
     
     func padded(_ point: CGPoint) -> CGPoint {
@@ -343,15 +371,13 @@ public class ConstructionView : UIView {
     }
     
     @objc func update(displayLink: CADisplayLink) {
-        print(displayLink.timestamp)
-        /*
         let first = unpadded(firstBridgeBall.layer.presentation()!.position)
         let second = unpadded(secondBridgeBall.layer.presentation()!.position)
         
         let thirdBridgePath = UIBezierPath()
         thirdBridgePath.move(to: first)
         thirdBridgePath.addLine(to: second)
-        thirdBridge.path = thirdBridgePath.cgPath */
+        thirdBridge.path = thirdBridgePath.cgPath
     }
     
     func pan(gesture: UIPanGestureRecognizer) {
