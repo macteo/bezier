@@ -1,7 +1,5 @@
 import UIKit
 
-let canvasSize : CGFloat = 300
-
 extension Double {
     func format(d: Int) -> String {
         return String(format: "%.\(d)f", self)
@@ -21,6 +19,7 @@ extension CGFloat {
 }
 
 public class BezierController : UIViewController {
+    let canvasSize : CGFloat = 300
     var controlPoint1 : CGPoint!
     var controlPoint2 : CGPoint!
     let canvas = CALayer()
@@ -174,9 +173,9 @@ public class BezierController : UIViewController {
         animator.startAnimation()
         
         let animatorLinear = UIViewPropertyAnimator(duration: self.animationDuration, curve: .linear, animations: {
-            self.timeBall.center.x = canvasSize + self.padding
-            self.controlBall.center.x = canvasSize + self.padding
-            self.verticalProjection.center.x = self.padding + canvasSize
+            self.timeBall.center.x = self.self.canvasSize + self.padding
+            self.controlBall.center.x = self.self.canvasSize + self.padding
+            self.verticalProjection.center.x = self.padding + self.self.canvasSize
         })
         animatorLinear.startAnimation()
     }
