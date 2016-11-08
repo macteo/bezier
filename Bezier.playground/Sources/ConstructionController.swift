@@ -13,7 +13,7 @@ public class ConstructionController : UIViewController {
     let rightArm = CAShapeLayer()
     let armsConnection = CAShapeLayer()
     let handleSize : CGFloat = 8
-    let animationDuration : TimeInterval = 2
+    let animationDuration : TimeInterval = 1
     let padding : CGFloat = 100
     
     let leftArmBall = UIView()
@@ -267,10 +267,13 @@ public class ConstructionController : UIViewController {
         fourthBridgePath.move(to: padded(controlPoint1))
         fourthBridgePath.addQuadCurve(to: padded(endPoint), controlPoint: padded(controlPoint2))
         
-        let displayLink = CADisplayLink(target: self, selector: #selector(update))
+        let displayLink = CADisplayLink(target: self, selector: #selector(update(displayLink:)))
+        displayLink.preferredFramesPerSecond = 60
+        
+        // let displayLink = CADisplayLink(target: self, selector: #selector(update))
         displayLink.add(to: RunLoop.main, forMode: .defaultRunLoopMode)
-        displayLink.add(to: RunLoop.main, forMode: .UITrackingRunLoopMode)
-        displayLink.add(to: RunLoop.main, forMode: .commonModes)
+        // displayLink.add(to: RunLoop.main, forMode: .UITrackingRunLoopMode)
+        // displayLink.add(to: RunLoop.main, forMode: .commonModes)
         
         animatorLinear.addCompletion {
             _ in
@@ -282,8 +285,9 @@ public class ConstructionController : UIViewController {
             self.firstBridge.removeAllAnimations()
             self.secondBridge.removeAllAnimations()
             displayLink.remove(from: RunLoop.main, forMode: .defaultRunLoopMode)
-            displayLink.remove(from: RunLoop.main, forMode: .UITrackingRunLoopMode)
-            displayLink.remove(from: RunLoop.main, forMode: .commonModes)
+            // displayLink.remove(from: RunLoop.main, forMode: .UITrackingRunLoopMode)
+            // displayLink.invalidate()
+            // displayLink.remove(from: RunLoop.main, forMode: .commonModes)
         }
         animatorLinear.startAnimation()
         
@@ -304,20 +308,18 @@ public class ConstructionController : UIViewController {
         secondBridge.add(secondAnimation, forKey:secondAnimation.keyPath)
         
         let thirdAnimation = CAKeyframeAnimation(keyPath: "position")
-        thirdAnimation.calculationMode = kCAAnimationPaced
         thirdAnimation.path = thirdBridgePath.cgPath
         thirdAnimation.duration = animationDuration
         thirdAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
-        thirdAnimation.fillMode = kCAFillModeForwards
+        thirdAnimation.fillMode = kCAFillModeBoth
         thirdAnimation.isRemovedOnCompletion = false
         firstBridgeBall.layer.add(thirdAnimation, forKey:thirdAnimation.keyPath)
         
         let fourthAnimation = CAKeyframeAnimation(keyPath: "position")
-        fourthAnimation.calculationMode = kCAAnimationPaced
         fourthAnimation.path = fourthBridgePath.cgPath
         fourthAnimation.duration = animationDuration
         fourthAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
-        fourthAnimation.fillMode = kCAFillModeForwards
+        fourthAnimation.fillMode = kCAFillModeBoth
         fourthAnimation.isRemovedOnCompletion = false
         secondBridgeBall.layer.add(fourthAnimation, forKey:fourthAnimation.keyPath)
     }
@@ -326,11 +328,20 @@ public class ConstructionController : UIViewController {
         return CGPoint(x: point.x + padding, y: point.y + padding)
     }
     
-    @objc func update() {
-        let thirdBridgePath = UIBezierPath()
-        thirdBridgePath.move(to: firstBridgeBall.center)
-        thirdBridgePath.addLine(to: secondBridgeBall.center)
-        thirdBridge.path = thirdBridgePath.cgPath
+    func unpadded(_ point: CGPoint) -> CGPoint {
+        return CGPoint(x: point.x - padding, y: point.y - padding)
+    }
+    
+    @objc func update(displayLink: CADisplayLink) {
+        print(displayLink.timestamp)
+        
+//        let first = unpadded(firstBridgeBall.layer.presentation()!.position)
+//        let second = unpadded(secondBridgeBall.layer.presentation()!.position)
+//        
+//        let thirdBridgePath = UIBezierPath()
+//        thirdBridgePath.move(to: first)
+//        thirdBridgePath.addLine(to: second)
+//        thirdBridge.path = thirdBridgePath.cgPath
     }
     
     func pan(gesture: UIPanGestureRecognizer) {
