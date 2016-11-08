@@ -1,6 +1,6 @@
 import UIKit
 
-public class ConstructionView : UIView {
+public class GenesisController : UIViewController {
     let canvasSize : CGFloat = 300
     var startPoint : CGPoint!
     var endPoint : CGPoint!
@@ -32,18 +32,9 @@ public class ConstructionView : UIView {
     let secondBridgeBall = UIView()
     let thirdBridgeBall = UIView()
     
-    override public init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
-    }
-    
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        commonInit()
-    }
-    
-    func commonInit() {
-        backgroundColor = .white
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
         
         startPoint = CGPoint(x: 0, y: canvasSize)
         endPoint = CGPoint(x: canvasSize, y: canvasSize / 2)
@@ -61,7 +52,7 @@ public class ConstructionView : UIView {
         canvas.frame = CGRect(x: padding, y: padding, width: canvasSize, height: canvasSize)
         canvas.borderColor = UIColor.white.cgColor
         canvas.borderWidth = 0.0
-        layer.addSublayer(canvas)
+        view.layer.addSublayer(canvas)
         
         let pointSize : CGFloat = 8
         let originPoint = CAShapeLayer()
@@ -80,14 +71,14 @@ public class ConstructionView : UIView {
         leftHandleView.backgroundColor = .clear
         leftHandleView.tag = 1
         
-        addSubview(leftHandleView)
+        view.addSubview(leftHandleView)
         let leftHandlePan = UIPanGestureRecognizer(target: self, action: #selector(pan(gesture:)))
         leftHandleView.addGestureRecognizer(leftHandlePan)
         
         let rightHandleView = UIView(frame: CGRect(x: controlPoint2.x + padding - 20, y: controlPoint2.y + padding - 20, width: 40, height: 40))
         rightHandleView.backgroundColor = .clear
         rightHandleView.tag = 2
-        addSubview(rightHandleView)
+        view.addSubview(rightHandleView)
         let rightHandlePan = UIPanGestureRecognizer(target: self, action: #selector(pan(gesture:)))
         rightHandleView.addGestureRecognizer(rightHandlePan)
         
@@ -95,13 +86,13 @@ public class ConstructionView : UIView {
         startAnimationButton.setTitleColor(.black, for: .normal)
         startAnimationButton.setTitle("Play", for: .normal)
         startAnimationButton.addTarget(self, action: #selector(animate), for: .touchUpInside)
-        addSubview(startAnimationButton)
+        view.addSubview(startAnimationButton)
         
         resetAnimationButton = UIButton(frame: CGRect(x: padding * 2 + 60, y: canvasSize + padding, width: 60, height: 44))
         resetAnimationButton.setTitleColor(.black, for: .normal)
         resetAnimationButton.setTitle("Reset", for: .normal)
         resetAnimationButton.addTarget(self, action: #selector(resetAnimation), for: .touchUpInside)
-        addSubview(resetAnimationButton)
+        view.addSubview(resetAnimationButton)
         
         canvas.addSublayer(firstBridge)
         canvas.addSublayer(secondBridge)
@@ -171,32 +162,32 @@ public class ConstructionView : UIView {
         leftArmBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         leftArmBall.layer.cornerRadius = armBallSize / 2
         leftArmBall.backgroundColor = armBallColor
-        addSubview(leftArmBall)
+        view.addSubview(leftArmBall)
         
         armsConnectionBall.frame = CGRect(x: padding + controlPoint1.x - armBallSize / 2, y: padding + controlPoint1.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         armsConnectionBall.layer.cornerRadius = armBallSize / 2
         armsConnectionBall.backgroundColor = armBallColor
-        addSubview(armsConnectionBall)
+        view.addSubview(armsConnectionBall)
         
         rightArmBall.frame = CGRect(x: padding + controlPoint2.x - armBallSize / 2, y: padding + controlPoint2.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         rightArmBall.layer.cornerRadius = armBallSize / 2
         rightArmBall.backgroundColor = armBallColor
-        addSubview(rightArmBall)
+        view.addSubview(rightArmBall)
         
         firstBridgeBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         firstBridgeBall.layer.cornerRadius = armBallSize / 2
         firstBridgeBall.backgroundColor = .clear
-        addSubview(firstBridgeBall)
+        view.addSubview(firstBridgeBall)
         
         secondBridgeBall.frame = CGRect(x: padding + controlPoint1.x - armBallSize / 2, y: padding + controlPoint1.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         secondBridgeBall.layer.cornerRadius = armBallSize / 2
         secondBridgeBall.backgroundColor = .clear
-        addSubview(secondBridgeBall)
+        view.addSubview(secondBridgeBall)
         
         thirdBridgeBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         thirdBridgeBall.layer.cornerRadius = armBallSize / 2
         thirdBridgeBall.backgroundColor = .clear
-        addSubview(thirdBridgeBall)
+        view.addSubview(thirdBridgeBall)
         
         let firstBridgePath = UIBezierPath()
         firstBridgePath.move(to: startPoint)
@@ -389,7 +380,7 @@ public class ConstructionView : UIView {
             if x < 0 { x = 0 }
             if x > canvasSize + 2 * padding { x = canvasSize + 2 * padding }
             if y < 0 { y = 0 }
-            if y > bounds.size.height { y = bounds.size.height }
+            if y > view.bounds.size.height { y = view.bounds.size.height }
             gesture.view!.center =  CGPoint(x: x, y: y)
             gesture.setTranslation(CGPoint(x:0, y:0), in: gesture.view)
             
@@ -403,7 +394,7 @@ public class ConstructionView : UIView {
             if x < -padding { x = -padding }
             if x > canvasSize + padding { x = canvasSize + padding }
             if y < -padding { y = -padding }
-            if y > bounds.size.height - padding { y = bounds.size.height - padding }
+            if y > view.bounds.size.height - padding { y = view.bounds.size.height - padding }
             point = CGPoint(x: x, y: y)
             if gesture.view?.tag == 1 {
                 controlPoint1 = point

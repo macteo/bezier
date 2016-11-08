@@ -18,7 +18,7 @@ extension CGFloat {
     }
 }
 
-public class BezierController : UIViewController {
+public class AnimationController : UIViewController {
     let canvasSize : CGFloat = 300
     var controlPoint1 : CGPoint!
     var controlPoint2 : CGPoint!

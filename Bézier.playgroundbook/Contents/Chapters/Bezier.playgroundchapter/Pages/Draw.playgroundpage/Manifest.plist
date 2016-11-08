@@ -4,15 +4,13 @@
 <dict>
 	<key>ContentVersion</key>
 	<string>1.0</string>
+	<key>LiveViewMode</key>
+	<string>VisibleByDefault</string>
 	<key>Name</key>
-	<string>Bezier Curves</string>
-	<key>Pages</key>
-	<array>
-		<string>Genesis.playgroundpage</string>
-		<string>Draw.playgroundpage</string>
-		<string>Animation.playgroundpage</string>
-	</array>
+	<string>Draw</string>
 	<key>Version</key>
 	<string>1.0</string>
+	<key>LiveViewEdgeToEdge</key>
+	<true/>
 </dict>
 </plist>

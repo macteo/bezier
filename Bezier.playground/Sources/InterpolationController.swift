@@ -2,7 +2,7 @@ import UIKit
 import MapKit
 
 let mapboxAccessToken = "YOUR MAPBOX TOKEN"
-let orangeTralio = UIColor(red: 255 / 255, green: 87 / 255, blue: 34 / 255, alpha: 1)
+// let orangeTralio = UIColor(red: 255 / 255, green: 87 / 255, blue: 34 / 255, alpha: 1)
 
 public class InterpolationController : UIViewController {
     let graphicsView = GraphicsView()
