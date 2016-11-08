@@ -208,15 +208,11 @@ public class BezierController : UIViewController {
         
         leftHandle.path = UIBezierPath(ovalIn: CGRect(x: controlPoint1.x, y: controlPoint1.y, width: handleSize, height: handleSize)).cgPath
         leftHandle.frame = CGRect(x: -handleSize / 2, y: -handleSize / 2, width: handleSize, height: handleSize)
-        leftHandle.fillColor = UIColor.black.cgColor
-        leftHandle.strokeColor = UIColor.green.cgColor
-        leftHandle.lineWidth = 2
+        leftHandle.fillColor = UIColor.green.cgColor
         
         rightHandle.path = UIBezierPath(ovalIn: CGRect(x: controlPoint2.x, y: controlPoint2.y, width: handleSize, height: handleSize)).cgPath
         rightHandle.frame = CGRect(x: -handleSize / 2, y: -handleSize / 2, width: handleSize, height: handleSize)
-        rightHandle.fillColor = UIColor.black.cgColor
-        rightHandle.strokeColor = UIColor.yellow.cgColor
-        rightHandle.lineWidth = 2
+        rightHandle.fillColor = UIColor.yellow.cgColor
         
         let leftArmPath = UIBezierPath()
         leftArmPath.move(to: CGPoint(x:0, y: canvasSize))
@@ -248,8 +244,8 @@ public class BezierController : UIViewController {
             var y = gesture.view!.center.y + translation.y
             if x < padding { x = padding }
             if x > canvasSize + padding { x = canvasSize + padding }
-            if y < 0 { y = 0 }
-            if y > view.bounds.size.height { y = view.bounds.size.height }
+            if y < -padding { y = -padding }
+            if y > view.bounds.size.height - padding { y = view.bounds.size.height - padding }
             gesture.view!.center =  CGPoint(x: x, y: y)
             gesture.setTranslation(CGPoint(x:0, y:0), in: gesture.view)
             
