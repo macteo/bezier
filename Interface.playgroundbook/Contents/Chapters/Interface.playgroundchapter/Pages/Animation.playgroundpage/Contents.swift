@@ -2,12 +2,17 @@
 import UIKit
 //#-end-hidden-code
 
-//: Animation - noun: a place where people can play
-//// LiveView
+//: **Timing Functions** the key ingredient to design great animations
+//#-hidden-code
 import UIKit
 import PlaygroundSupport
 
 PlaygroundPage.current.liveView = AnimationController()
-//// LiveView
-//: Ciao!
+//#-end-hidden-code
+/*:
+ Ciao come va?
+ */
+//#-editable-code
+let hello = "Hello"
+//#-end-editable-code
 //: [Next](@next)

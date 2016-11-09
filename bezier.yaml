@@ -1,4 +1,4 @@
-name: Interface
+name: Bézier
 identifier: it.macteo.bezier
 # resources: assets # Optional
 # cover: cover.jpeg # Optional
@@ -6,5 +6,5 @@ deployment_target: ios10.0
 imports:
  - UIKit
 chapters:
-  - name: Interface
+  - name: Bézier
     live_view_mode: "VisibleByDefault"
