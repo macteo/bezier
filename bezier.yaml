@@ -1,10 +1,10 @@
-name: Bézier
+name: Interface
 identifier: it.macteo.bezier
 # resources: assets # Optional
 # cover: cover.jpeg # Optional
 deployment_target: ios10.0
 imports:
  - UIKit
- - CoreGraphics
 chapters:
-  - Bezier
+  - name: Interface
+    live_view_mode: "VisibleByDefault"
