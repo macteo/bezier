@@ -9,6 +9,27 @@ enum GenesisStep {
     case sixth
     case seventh
     case eight
+    
+    var string : String {
+        switch self {
+        case .first:
+            return "1"
+        case .second:
+            return "2"
+        case .third:
+            return "3"
+        case .fourth:
+            return "4"
+        case .fifth:
+            return "5"
+        case .sixth:
+            return "6"
+        case .seventh:
+            return "7"
+        case .eight:
+            return "8"
+        }
+    }
 }
 
 enum GenesisElement {
@@ -19,6 +40,7 @@ enum GenesisElement {
     case bezier
     case bridge
     case bridgePoint
+    case bridgeTangentPoint
     case tangent
     case tangentPoint
 }
@@ -31,12 +53,14 @@ enum ColorType {
 let purple = "#5D68E6".color
 let black = UIColor.black
 let gray = "#F9F9F9".color
-let lightGray = UIColor.lightGray
+let lighterGray = UIColor.lightGray.withAlphaComponent(0.2)
 let green = "#98C949".color
 let fuxia = "#D34BC8".color
 
 public class GenesisController : UIViewController {
     var step = GenesisStep.first
+    
+    let steps : [GenesisStep] = [.first, .second, .third, .fourth, .fifth, .sixth, .seventh, .eight]
     
     let canvasSize : CGFloat = 300
     var startPoint : CGPoint!
@@ -47,7 +71,7 @@ public class GenesisController : UIViewController {
     let joinBezier = CAShapeLayer()
     let leftHandle = CAShapeLayer()
     let rightHandle = CAShapeLayer()
-    let lefArm = CAShapeLayer()
+    let leftArm = CAShapeLayer()
     let rightArm = CAShapeLayer()
     let armsConnection = CAShapeLayer()
     let handleSize : CGFloat = 8
@@ -61,6 +85,9 @@ public class GenesisController : UIViewController {
     var startAnimationButton : UIButton!
     var resetAnimationButton : UIButton!
     
+    var nextButton : UIButton!
+    var previousButton : UIButton!
+    
     let firstBridge = CAShapeLayer()
     let secondBridge = CAShapeLayer()
     let thirdBridge = CAShapeLayer()
@@ -69,7 +96,81 @@ public class GenesisController : UIViewController {
     let secondBridgeBall = UIView()
     let thirdBridgeBall = UIView()
     
-    func color(element: GenesisElement) -> (stroke: UIColor, fill: UIColor) {
+    var stateLabel : UILabel!
+    
+    var animating = false
+    
+    @objc func nextAction() {
+        guard animating == false else { return }
+        switch step {
+        case .first:
+            step = .second
+            break
+        case .second:
+            step = .third
+            break
+        case .third:
+            step = .fourth
+            break
+        case .fourth:
+            step = .fifth
+            break
+        case .fifth:
+            step = .sixth
+            break
+        case .sixth:
+            step = .seventh
+            break
+        case .seventh:
+            step = .eight
+            break
+        case .eight:
+            step = .first
+            break
+        }
+        updateColors()
+        updateLabels()
+        resetAnimation()
+    }
+
+    @objc func previousAction() {
+        guard animating == false else { return }
+        switch step {
+        case .first:
+            step = .eight
+            break
+        case .second:
+            step = .first
+            break
+        case .third:
+            step = .second
+            break
+        case .fourth:
+            step = .third
+            break
+        case .fifth:
+            step = .fourth
+            break
+        case .sixth:
+            step = .fifth
+            break
+        case .seventh:
+            step = .sixth
+            break
+        case .eight:
+            step = .seventh
+            break
+        }
+        updateColors()
+        updateLabels()
+        resetAnimation()
+    }
+    
+    func updateLabels() {
+        stateLabel.text = step.string
+    }
+    
+    func color(_ element: GenesisElement) -> (stroke: UIColor, fill: UIColor) {
         switch element {
         case .point:
             switch step {
@@ -83,23 +184,23 @@ public class GenesisController : UIViewController {
             case .first:
                 return (.clear, .clear)
             default:
-                return (purple, .clear)
+                return (purple, .white)
             }
         case .joinLine:
             switch step {
             case .first, .second:
                 return (.clear, .clear)
             default:
-                return (lightGray, .clear)
+                return (.lightGray, .clear)
             }
         case .bezier:
             switch step {
             case .first:
                 return (.clear, .clear)
             case .second, .fourth, .fifth, .sixth, .seventh:
-                return (.clear, lightGray)
+                return (.clear, lighterGray)
             case .third, .eight:
-                return (black, lightGray)
+                return (black, lighterGray)
             }
         case .bridge:
             switch step {
@@ -110,15 +211,15 @@ public class GenesisController : UIViewController {
             }
         case .bridgePoint:
             switch step {
-            case .fourth:
-                return (green, .clear)
+            case .fourth, .fifth:
+                return (.clear, green)
             default:
                 return (.clear, .clear)
             }
         case .tangentPoint:
             switch step {
-            case .sixth, .seventh:
-                return (fuxia, .clear)
+            case .seventh, .eight:
+                return (.clear, fuxia)
             default:
                 return (.clear, .clear)
             }
@@ -129,7 +230,42 @@ public class GenesisController : UIViewController {
             default:
                 return (.clear, .clear)
             }
+        case .bridgeTangentPoint:
+            switch step {
+            case .sixth, .seventh, .eight:
+                return (.clear, fuxia)
+            default:
+                return (.clear, .clear)
+            }
         }
+    }
+    
+    func updateColors() {
+        joinBezier.strokeColor = color(.bezier).stroke.cgColor
+        joinBezier.fillColor = color(.bezier).fill.cgColor
+        
+        joinBezier.strokeEnd = 1.0
+        
+        armsConnection.strokeColor = color(.joinLine).stroke.cgColor
+        leftArm.strokeColor = color(.handle).stroke.cgColor
+        rightArm.strokeColor = color(.handle).stroke.cgColor
+        leftHandle.strokeColor = color(.handle).stroke.cgColor
+        leftHandle.fillColor = color(.handle).fill.cgColor
+        rightHandle.strokeColor = color(.handle).stroke.cgColor
+        rightHandle.fillColor = color(.handle).fill.cgColor
+        
+        leftArmBall.backgroundColor = color(.bridgePoint).fill
+        rightArmBall.backgroundColor = color(.bridgePoint).fill
+        armsConnectionBall.backgroundColor = color(.bridgePoint).fill
+        
+        firstBridgeBall.backgroundColor = color(.bridgeTangentPoint).fill
+        secondBridgeBall.backgroundColor = color(.bridgeTangentPoint).fill
+        
+        firstBridge.strokeColor = color(.bridge).stroke.cgColor
+        secondBridge.strokeColor = color(.bridge).stroke.cgColor
+        thirdBridge.strokeColor = color(.tangent).stroke.cgColor
+        
+        thirdBridgeBall.backgroundColor = color(.tangentPoint).fill
     }
     
     public override func viewDidLoad() {
@@ -141,13 +277,6 @@ public class GenesisController : UIViewController {
         
         controlPoint1 = CGPoint(x: 0, y: canvasSize / 2)
         controlPoint2 = CGPoint(x: canvasSize / 2, y: canvasSize / 3)
-        
-        canvas.addSublayer(armsConnection)
-        canvas.addSublayer(lefArm)
-        canvas.addSublayer(rightArm)
-        canvas.addSublayer(joinBezier)
-        canvas.addSublayer(leftHandle)
-        canvas.addSublayer(rightHandle)
         
         canvas.frame = CGRect(x: padding, y: padding, width: canvasSize, height: canvasSize)
         canvas.borderColor = UIColor.white.cgColor
@@ -198,6 +327,38 @@ public class GenesisController : UIViewController {
         canvas.addSublayer(secondBridge)
         canvas.addSublayer(thirdBridge)
         
+        view.addSubview(firstBridgeBall)
+        view.addSubview(secondBridgeBall)
+        view.addSubview(thirdBridgeBall)
+        
+        view.addSubview(leftArmBall)
+        view.addSubview(armsConnectionBall)
+        view.addSubview(rightArmBall)
+        
+        nextButton = UIButton(frame: CGRect(x: padding * 2, y: 20, width: 60, height: 44))
+        nextButton.setTitleColor(.black, for: .normal)
+        nextButton.setTitle(">", for: .normal)
+        nextButton.addTarget(self, action: #selector(nextAction), for: .touchUpInside)
+        view.addSubview(nextButton)
+        
+        previousButton = UIButton(frame: CGRect(x: padding, y: 20, width: 60, height: 44))
+        previousButton.setTitleColor(.black, for: .normal)
+        previousButton.setTitle("<", for: .normal)
+        previousButton.addTarget(self, action: #selector(previousAction), for: .touchUpInside)
+        view.addSubview(previousButton)
+        
+        stateLabel = UILabel(frame: CGRect(x: 2 * padding + padding - 20, y: 20, width: 60, height: 44))
+        stateLabel.textColor = UIColor.black
+        stateLabel.text = "1"
+        view.addSubview(stateLabel)
+        
+        canvas.addSublayer(armsConnection)
+        canvas.addSublayer(leftArm)
+        canvas.addSublayer(rightArm)
+        canvas.addSublayer(joinBezier)
+        canvas.addSublayer(leftHandle)
+        canvas.addSublayer(rightHandle)
+        
         drawLayers()
     }
     
@@ -210,30 +371,22 @@ public class GenesisController : UIViewController {
         joinBezier.frame = canvas.bounds
         joinBezier.path = bezier.cgPath
         joinBezier.lineWidth = 2
-        joinBezier.fillColor = UIColor.lightGray.withAlphaComponent(0.1).cgColor
-        joinBezier.strokeColor = UIColor.clear.cgColor
         
         leftHandle.path = UIBezierPath(ovalIn: CGRect(x: controlPoint1.x, y: controlPoint1.y, width: handleSize, height: handleSize)).cgPath
         leftHandle.frame = CGRect(x: -handleSize / 2, y: -handleSize / 2, width: handleSize, height: handleSize)
         leftHandle.lineWidth = 2
-        leftHandle.fillColor = UIColor.white.cgColor
-        leftHandle.strokeColor = UIColor.blue.cgColor
         
         rightHandle.path = UIBezierPath(ovalIn: CGRect(x: controlPoint2.x, y: controlPoint2.y, width: handleSize, height: handleSize)).cgPath
         rightHandle.frame = CGRect(x: -handleSize / 2, y: -handleSize / 2, width: handleSize, height: handleSize)
         rightHandle.lineWidth = 2
-        rightHandle.fillColor = UIColor.white.cgColor
-        rightHandle.strokeColor = UIColor.blue.cgColor
         
         let leftArmPath = UIBezierPath()
         leftArmPath.move(to: CGPoint(x: startPoint.x, y: startPoint.y))
         leftArmPath.addLine(to: controlPoint1)
         
-        lefArm.frame = canvas.bounds
-        lefArm.path = leftArmPath.cgPath
-        lefArm.lineWidth = 2
-        lefArm.fillColor = UIColor.clear.cgColor
-        lefArm.strokeColor = UIColor.blue.cgColor
+        leftArm.frame = canvas.bounds
+        leftArm.path = leftArmPath.cgPath
+        leftArm.lineWidth = 2
         
         let rightArmPath = UIBezierPath()
         rightArmPath.move(to: CGPoint(x: endPoint.x, y: endPoint.y))
@@ -242,8 +395,6 @@ public class GenesisController : UIViewController {
         rightArm.frame = canvas.bounds
         rightArm.path = rightArmPath.cgPath
         rightArm.lineWidth = 2
-        rightArm.fillColor = UIColor.clear.cgColor
-        rightArm.strokeColor = UIColor.blue.cgColor
         
         let armsConnectionPath = UIBezierPath()
         armsConnectionPath.move(to: CGPoint(x: controlPoint1.x, y: controlPoint1.y))
@@ -253,41 +404,28 @@ public class GenesisController : UIViewController {
         armsConnection.frame = canvas.bounds
         armsConnection.path = armsConnectionPath.cgPath
         armsConnection.lineWidth = 1
-        armsConnection.fillColor = UIColor.clear.cgColor
-        armsConnection.strokeColor = UIColor.darkGray.cgColor
         
         let armBallSize : CGFloat = 6
-        let armBallColor = UIColor.green
         
         leftArmBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         leftArmBall.layer.cornerRadius = armBallSize / 2
-        leftArmBall.backgroundColor = armBallColor
-        view.addSubview(leftArmBall)
+        
         
         armsConnectionBall.frame = CGRect(x: padding + controlPoint1.x - armBallSize / 2, y: padding + controlPoint1.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         armsConnectionBall.layer.cornerRadius = armBallSize / 2
-        armsConnectionBall.backgroundColor = armBallColor
-        view.addSubview(armsConnectionBall)
         
         rightArmBall.frame = CGRect(x: padding + controlPoint2.x - armBallSize / 2, y: padding + controlPoint2.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         rightArmBall.layer.cornerRadius = armBallSize / 2
-        rightArmBall.backgroundColor = armBallColor
-        view.addSubview(rightArmBall)
         
         firstBridgeBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         firstBridgeBall.layer.cornerRadius = armBallSize / 2
-        firstBridgeBall.backgroundColor = .clear
-        view.addSubview(firstBridgeBall)
+        
         
         secondBridgeBall.frame = CGRect(x: padding + controlPoint1.x - armBallSize / 2, y: padding + controlPoint1.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         secondBridgeBall.layer.cornerRadius = armBallSize / 2
-        secondBridgeBall.backgroundColor = .clear
-        view.addSubview(secondBridgeBall)
         
         thirdBridgeBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         thirdBridgeBall.layer.cornerRadius = armBallSize / 2
-        thirdBridgeBall.backgroundColor = .clear
-        view.addSubview(thirdBridgeBall)
         
         let firstBridgePath = UIBezierPath()
         firstBridgePath.move(to: startPoint)
@@ -296,8 +434,6 @@ public class GenesisController : UIViewController {
         firstBridge.frame = canvas.bounds
         firstBridge.path = firstBridgePath.cgPath
         firstBridge.lineWidth = 2
-        firstBridge.fillColor = UIColor.clear.cgColor
-        firstBridge.strokeColor = UIColor.clear.cgColor
         
         let secondBridgePath = UIBezierPath()
         secondBridgePath.move(to: controlPoint1)
@@ -306,8 +442,6 @@ public class GenesisController : UIViewController {
         secondBridge.frame = canvas.bounds
         secondBridge.path = secondBridgePath.cgPath
         secondBridge.lineWidth = 2
-        secondBridge.fillColor = UIColor.clear.cgColor
-        secondBridge.strokeColor = UIColor.clear.cgColor
         
         let thirdBridgePath = UIBezierPath()
         thirdBridgePath.move(to: controlPoint1)
@@ -315,8 +449,15 @@ public class GenesisController : UIViewController {
         thirdBridge.frame = canvas.bounds
         thirdBridge.path = thirdBridgePath.cgPath
         thirdBridge.lineWidth = 2
-        thirdBridge.fillColor = UIColor.clear.cgColor
-        thirdBridge.strokeColor = UIColor.clear.cgColor
+        
+        updateColors()
+        
+        switch step {
+        case .second, .third, .fourth:
+            joinBezier.strokeEnd = 1.0
+        default:
+            joinBezier.strokeEnd = 0.0
+        }
     }
     
     func resetAnimation() {
@@ -325,13 +466,11 @@ public class GenesisController : UIViewController {
         firstBridgePath.move(to: startPoint)
         firstBridgePath.addLine(to: controlPoint1)
         firstBridge.path = firstBridgePath.cgPath
-        firstBridge.strokeColor = UIColor.clear.cgColor
         
         let secondBridgePath = UIBezierPath()
         secondBridgePath.move(to: controlPoint1)
         secondBridgePath.addLine(to: controlPoint2)
         secondBridge.path = secondBridgePath.cgPath
-        secondBridge.strokeColor = UIColor.clear.cgColor
         
         leftArmBall.center = padded(startPoint)
         armsConnectionBall.center = padded(controlPoint1)
@@ -341,24 +480,18 @@ public class GenesisController : UIViewController {
         secondBridgeBall.center = armsConnectionBall.center
         thirdBridgeBall.center = leftArmBall.center
         
-        joinBezier.strokeColor = UIColor.clear.cgColor
+        animating = false
     }
     
     func animate() {
         resetAnimation()
+        animating = true
         resetAnimationButton.isEnabled = false
         startAnimationButton.isEnabled = false
         
-        joinBezier.strokeColor = UIColor.red.cgColor
         joinBezier.strokeStart = 0.0
-        joinBezier.strokeEnd = 0.0
         
-        firstBridge.strokeColor = UIColor.green.cgColor
-        secondBridge.strokeColor = UIColor.green.cgColor
-        thirdBridge.strokeColor = UIColor.green.cgColor
-        firstBridgeBall.backgroundColor = .red
-        secondBridgeBall.backgroundColor = .red
-        thirdBridgeBall.backgroundColor = .red
+        updateColors()
         
         let animatorLinear = UIViewPropertyAnimator(duration: self.animationDuration, curve: .linear, animations: {
             self.leftArmBall.center = self.padded(self.controlPoint1)
@@ -396,6 +529,7 @@ public class GenesisController : UIViewController {
             self.firstBridge.removeAllAnimations()
             self.secondBridge.removeAllAnimations()
             displayLink.remove(from: RunLoop.main, forMode: .defaultRunLoopMode)
+            self.animating = false
         }
         animatorLinear.startAnimation()
         
@@ -472,6 +606,7 @@ public class GenesisController : UIViewController {
     }
     
     func pan(gesture: UIPanGestureRecognizer) {
+        guard animating == false else { return }
         switch (gesture.state) {
         case .changed:
             let translation = gesture.translation(in: gesture.view)
