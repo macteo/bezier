@@ -410,7 +410,6 @@ public class GenesisController : UIViewController {
         leftArmBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         leftArmBall.layer.cornerRadius = armBallSize / 2
         
-        
         armsConnectionBall.frame = CGRect(x: padding + controlPoint1.x - armBallSize / 2, y: padding + controlPoint1.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         armsConnectionBall.layer.cornerRadius = armBallSize / 2
         
@@ -479,6 +478,10 @@ public class GenesisController : UIViewController {
         firstBridgeBall.center = leftArmBall.center
         secondBridgeBall.center = armsConnectionBall.center
         thirdBridgeBall.center = leftArmBall.center
+        
+        firstBridgeBall.layer.removeAllAnimations()
+        secondBridgeBall.layer.removeAllAnimations()
+        thirdBridgeBall.layer.removeAllAnimations()
         
         animating = false
     }
@@ -607,6 +610,7 @@ public class GenesisController : UIViewController {
     
     func pan(gesture: UIPanGestureRecognizer) {
         guard animating == false else { return }
+        resetAnimation()
         switch (gesture.state) {
         case .changed:
             let translation = gesture.translation(in: gesture.view)
