@@ -1,6 +1,43 @@
 import UIKit
 
+enum GenesisStep {
+    case first
+    case second
+    case third
+    case fourth
+    case fifth
+    case sixth
+    case seventh
+    case eight
+}
+
+enum GenesisElement {
+    case point
+    case controlPoint
+    case joinLine
+    case handle
+    case bezier
+    case bridge
+    case bridgePoint
+    case tangent
+    case tangentPoint
+}
+
+enum ColorType {
+    case stroke
+    case fill
+}
+
+let purple = "#5D68E6".color
+let black = UIColor.black
+let gray = "#F9F9F9".color
+let lightGray = UIColor.lightGray
+let green = "#98C949".color
+let fuxia = "#D34BC8".color
+
 public class GenesisController : UIViewController {
+    var step = GenesisStep.first
+    
     let canvasSize : CGFloat = 300
     var startPoint : CGPoint!
     var endPoint : CGPoint!
@@ -31,6 +68,69 @@ public class GenesisController : UIViewController {
     let firstBridgeBall = UIView()
     let secondBridgeBall = UIView()
     let thirdBridgeBall = UIView()
+    
+    func color(element: GenesisElement) -> (stroke: UIColor, fill: UIColor) {
+        switch element {
+        case .point:
+            switch step {
+                case .first:
+                    return (purple, purple)
+                default:
+                return (.clear, .clear)
+            }
+        case .controlPoint, .handle:
+            switch step {
+            case .first:
+                return (.clear, .clear)
+            default:
+                return (purple, .clear)
+            }
+        case .joinLine:
+            switch step {
+            case .first, .second:
+                return (.clear, .clear)
+            default:
+                return (lightGray, .clear)
+            }
+        case .bezier:
+            switch step {
+            case .first:
+                return (.clear, .clear)
+            case .second, .fourth, .fifth, .sixth, .seventh:
+                return (.clear, lightGray)
+            case .third, .eight:
+                return (black, lightGray)
+            }
+        case .bridge:
+            switch step {
+            case .first, .second, .third, .fourth:
+                return (.clear, .clear)
+            case .fifth, .sixth, .seventh, .eight:
+                return (green, .clear)
+            }
+        case .bridgePoint:
+            switch step {
+            case .fourth:
+                return (green, .clear)
+            default:
+                return (.clear, .clear)
+            }
+        case .tangentPoint:
+            switch step {
+            case .sixth, .seventh:
+                return (fuxia, .clear)
+            default:
+                return (.clear, .clear)
+            }
+        case .tangent:
+            switch step {
+            case .seventh, .eight:
+                return (fuxia, .clear)
+            default:
+                return (.clear, .clear)
+            }
+        }
+    }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
