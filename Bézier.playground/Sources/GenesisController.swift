@@ -1,14 +1,14 @@
 import UIKit
 
-enum GenesisStep {
-    case first
-    case second
-    case third
-    case fourth
-    case fifth
-    case sixth
-    case seventh
-    case eight
+public enum GenesisStep : Int {
+    case first   = 1
+    case second  = 2
+    case third   = 3
+    case fourth  = 4
+    case fifth   = 5
+    case sixth   = 6
+    case seventh = 7
+    case eight   = 8
     
     var string : String {
         switch self {
@@ -57,12 +57,32 @@ let lighterGray = UIColor.lightGray.withAlphaComponent(0.2)
 let green = "#98C949".color
 let fuxia = "#D34BC8".color
 
-public class GenesisController : UIViewController {
-    var step = GenesisStep.first
+public class GenesisController : UIViewController, Stepper {
+    public var step: Int = 1 {
+        didSet {
+            guard animating == false else {
+                stepsView.currentStep = oldValue
+                return
+            }
+            guard let genesisStep = GenesisStep(rawValue: step) else {
+                stepsView.currentStep = oldValue
+                return
+            }
+            
+            _step = genesisStep
+            updateColors()
+            resetAnimation()
+        }
+    }
+    let blue = "#4990E2".color
+    
+    var _step = GenesisStep.first
+
+    var stepsView : StepsView!
     
     let steps : [GenesisStep] = [.first, .second, .third, .fourth, .fifth, .sixth, .seventh, .eight]
     
-    let canvasSize : CGFloat = 300
+    var canvasSize : CGFloat = 300
     var startPoint : CGPoint!
     var endPoint : CGPoint!
     var controlPoint1 : CGPoint!
@@ -85,9 +105,6 @@ public class GenesisController : UIViewController {
     var startAnimationButton : UIButton!
     var resetAnimationButton : UIButton!
     
-    var nextButton : UIButton!
-    var previousButton : UIButton!
-    
     let firstBridge = CAShapeLayer()
     let secondBridge = CAShapeLayer()
     let thirdBridge = CAShapeLayer()
@@ -96,105 +113,35 @@ public class GenesisController : UIViewController {
     let secondBridgeBall = UIView()
     let thirdBridgeBall = UIView()
     
-    var stateLabel : UILabel!
+    let progressView = UIProgressView()
     
     var animating = false
-    
-    @objc func nextAction() {
-        guard animating == false else { return }
-        switch step {
-        case .first:
-            step = .second
-            break
-        case .second:
-            step = .third
-            break
-        case .third:
-            step = .fourth
-            break
-        case .fourth:
-            step = .fifth
-            break
-        case .fifth:
-            step = .sixth
-            break
-        case .sixth:
-            step = .seventh
-            break
-        case .seventh:
-            step = .eight
-            break
-        case .eight:
-            step = .first
-            break
-        }
-        updateColors()
-        updateLabels()
-        resetAnimation()
-    }
-
-    @objc func previousAction() {
-        guard animating == false else { return }
-        switch step {
-        case .first:
-            step = .eight
-            break
-        case .second:
-            step = .first
-            break
-        case .third:
-            step = .second
-            break
-        case .fourth:
-            step = .third
-            break
-        case .fifth:
-            step = .fourth
-            break
-        case .sixth:
-            step = .fifth
-            break
-        case .seventh:
-            step = .sixth
-            break
-        case .eight:
-            step = .seventh
-            break
-        }
-        updateColors()
-        updateLabels()
-        resetAnimation()
-    }
-    
-    func updateLabels() {
-        stateLabel.text = step.string
-    }
     
     func color(_ element: GenesisElement) -> (stroke: UIColor, fill: UIColor) {
         switch element {
         case .point:
-            switch step {
+            switch _step {
                 case .first:
                     return (purple, purple)
                 default:
                 return (.clear, .clear)
             }
         case .controlPoint, .handle:
-            switch step {
+            switch _step {
             case .first:
                 return (.clear, .clear)
             default:
                 return (purple, .white)
             }
         case .joinLine:
-            switch step {
+            switch _step {
             case .first, .second:
                 return (.clear, .clear)
             default:
                 return (.lightGray, .clear)
             }
         case .bezier:
-            switch step {
+            switch _step {
             case .first:
                 return (.clear, .clear)
             case .second, .fourth, .fifth, .sixth, .seventh:
@@ -203,35 +150,35 @@ public class GenesisController : UIViewController {
                 return (black, lighterGray)
             }
         case .bridge:
-            switch step {
+            switch _step {
             case .first, .second, .third, .fourth:
                 return (.clear, .clear)
             case .fifth, .sixth, .seventh, .eight:
                 return (green, .clear)
             }
         case .bridgePoint:
-            switch step {
+            switch _step {
             case .fourth, .fifth:
                 return (.clear, green)
             default:
                 return (.clear, .clear)
             }
         case .tangentPoint:
-            switch step {
+            switch _step {
             case .seventh, .eight:
                 return (.clear, fuxia)
             default:
                 return (.clear, .clear)
             }
         case .tangent:
-            switch step {
+            switch _step {
             case .seventh, .eight:
                 return (fuxia, .clear)
             default:
                 return (.clear, .clear)
             }
         case .bridgeTangentPoint:
-            switch step {
+            switch _step {
             case .sixth, .seventh, .eight:
                 return (.clear, fuxia)
             default:
@@ -272,6 +219,22 @@ public class GenesisController : UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        stepsView = StepsView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 44))
+        stepsView.delegate = self
+        stepsView.autoresizingMask = .flexibleWidth
+        stepsView.stepsCount = steps.count
+        stepsView.currentStep = _step.rawValue
+        view.addSubview(stepsView)
+        
+        view.layer.addSublayer(canvas)
+        
+        
+    }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        canvasSize = view.frame.width - padding * 2
         startPoint = CGPoint(x: 0, y: canvasSize)
         endPoint = CGPoint(x: canvasSize, y: canvasSize / 2)
         
@@ -281,19 +244,18 @@ public class GenesisController : UIViewController {
         canvas.frame = CGRect(x: padding, y: padding, width: canvasSize, height: canvasSize)
         canvas.borderColor = UIColor.white.cgColor
         canvas.borderWidth = 0.0
-        view.layer.addSublayer(canvas)
         
         let pointSize : CGFloat = 8
         let originPoint = CAShapeLayer()
         originPoint.path = UIBezierPath(ovalIn: CGRect(x: startPoint.x, y: startPoint.y, width: pointSize, height: pointSize)).cgPath
         originPoint.frame = CGRect(x: -pointSize / 2, y: -pointSize / 2, width: pointSize, height: pointSize)
-        originPoint.fillColor = UIColor.blue.cgColor
+        originPoint.fillColor = purple.cgColor
         canvas.addSublayer(originPoint)
         
         let finalPoint = CAShapeLayer()
         finalPoint.path = UIBezierPath(ovalIn: CGRect(x: endPoint.x, y: endPoint.y, width: pointSize, height: pointSize)).cgPath
         finalPoint.frame = CGRect(x: -pointSize / 2, y: -pointSize / 2, width: pointSize, height: pointSize)
-        finalPoint.fillColor = UIColor.blue.cgColor
+        finalPoint.fillColor = purple.cgColor
         canvas.addSublayer(finalPoint)
         
         let leftHandleView = UIView(frame: CGRect(x: controlPoint1.x + padding - 20, y: controlPoint1.y + padding - 20, width: 40, height: 40))
@@ -311,17 +273,26 @@ public class GenesisController : UIViewController {
         let rightHandlePan = UIPanGestureRecognizer(target: self, action: #selector(pan(gesture:)))
         rightHandleView.addGestureRecognizer(rightHandlePan)
         
-        startAnimationButton = UIButton(frame: CGRect(x: padding, y: canvasSize + padding, width: 60, height: 44))
-        startAnimationButton.setTitleColor(.black, for: .normal)
-        startAnimationButton.setTitle("Play", for: .normal)
+        startAnimationButton = UIButton(frame: CGRect(x: 10, y: 20 + 44, width: 44, height: 44))
+        
+        let playImage = UIImage(named: "play")?.withRenderingMode(.alwaysTemplate)
+        startAnimationButton.setImage(playImage, for: .normal)
+        startAnimationButton.tintColor = blue
+        
         startAnimationButton.addTarget(self, action: #selector(animate), for: .touchUpInside)
         view.addSubview(startAnimationButton)
         
-        resetAnimationButton = UIButton(frame: CGRect(x: padding * 2 + 60, y: canvasSize + padding, width: 60, height: 44))
-        resetAnimationButton.setTitleColor(.black, for: .normal)
-        resetAnimationButton.setTitle("Reset", for: .normal)
+        resetAnimationButton = UIButton(frame: CGRect(x: view.frame.size.width - 10 - 44, y: 20 + 44, width: 44, height: 44))
+        let resetImage = UIImage(named: "reset")?.withRenderingMode(.alwaysTemplate)
+        resetAnimationButton.setImage(resetImage, for: .normal)
+        resetAnimationButton.tintColor = blue
         resetAnimationButton.addTarget(self, action: #selector(resetAnimation), for: .touchUpInside)
         view.addSubview(resetAnimationButton)
+        
+        progressView.frame = CGRect(x: 10 * 2 + 44, y: 20 + 44 + 20, width: view.frame.size.width - (20 + 44) * 2, height: 6)
+        progressView.progressTintColor = blue
+        progressView.setProgress(0.0, animated: false)
+        view.addSubview(progressView)
         
         canvas.addSublayer(firstBridge)
         canvas.addSublayer(secondBridge)
@@ -334,23 +305,6 @@ public class GenesisController : UIViewController {
         view.addSubview(leftArmBall)
         view.addSubview(armsConnectionBall)
         view.addSubview(rightArmBall)
-        
-        nextButton = UIButton(frame: CGRect(x: padding * 2, y: 20, width: 60, height: 44))
-        nextButton.setTitleColor(.black, for: .normal)
-        nextButton.setTitle(">", for: .normal)
-        nextButton.addTarget(self, action: #selector(nextAction), for: .touchUpInside)
-        view.addSubview(nextButton)
-        
-        previousButton = UIButton(frame: CGRect(x: padding, y: 20, width: 60, height: 44))
-        previousButton.setTitleColor(.black, for: .normal)
-        previousButton.setTitle("<", for: .normal)
-        previousButton.addTarget(self, action: #selector(previousAction), for: .touchUpInside)
-        view.addSubview(previousButton)
-        
-        stateLabel = UILabel(frame: CGRect(x: 2 * padding + padding - 20, y: 20, width: 60, height: 44))
-        stateLabel.textColor = UIColor.black
-        stateLabel.text = "1"
-        view.addSubview(stateLabel)
         
         canvas.addSublayer(armsConnection)
         canvas.addSublayer(leftArm)
@@ -451,7 +405,7 @@ public class GenesisController : UIViewController {
         
         updateColors()
         
-        switch step {
+        switch _step {
         case .second, .third, .fourth:
             joinBezier.strokeEnd = 1.0
         default:
@@ -460,6 +414,8 @@ public class GenesisController : UIViewController {
     }
     
     func resetAnimation() {
+        
+        progressView.setProgress(0, animated: false)
         
         let firstBridgePath = UIBezierPath()
         firstBridgePath.move(to: startPoint)
@@ -489,6 +445,9 @@ public class GenesisController : UIViewController {
     func animate() {
         resetAnimation()
         animating = true
+        
+        stepsView.enabled = false
+        
         resetAnimationButton.isEnabled = false
         startAnimationButton.isEnabled = false
         
@@ -496,7 +455,10 @@ public class GenesisController : UIViewController {
         
         updateColors()
         
+        progressView.progress = 1
+        
         let animatorLinear = UIViewPropertyAnimator(duration: self.animationDuration, curve: .linear, animations: {
+            self.progressView.layoutIfNeeded()
             self.leftArmBall.center = self.padded(self.controlPoint1)
             self.armsConnectionBall.center = self.padded(self.controlPoint2)
             self.rightArmBall.center = self.padded(self.endPoint)
@@ -533,6 +495,10 @@ public class GenesisController : UIViewController {
             self.secondBridge.removeAllAnimations()
             displayLink.remove(from: RunLoop.main, forMode: .defaultRunLoopMode)
             self.animating = false
+            
+            self.stepsView.enabled = true
+            
+            self.progressView.progress = 0
         }
         animatorLinear.startAnimation()
         
