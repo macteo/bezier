@@ -50,13 +50,6 @@ enum ColorType {
     case fill
 }
 
-let purple = "#5D68E6".color
-let black = UIColor.black
-let gray = "#F9F9F9".color
-let lighterGray = UIColor.lightGray.withAlphaComponent(0.2)
-let green = "#98C949".color
-let fuxia = "#D34BC8".color
-
 public class GenesisController : UIViewController, Stepper {
     public var step: Int = 1 {
         didSet {
@@ -74,7 +67,6 @@ public class GenesisController : UIViewController, Stepper {
             resetAnimation()
         }
     }
-    let blue = "#4990E2".color
     
     var _step = GenesisStep.first
 
@@ -104,6 +96,7 @@ public class GenesisController : UIViewController, Stepper {
     
     var startAnimationButton : UIButton!
     var resetAnimationButton : UIButton!
+    let progressView = UIProgressView()
     
     let firstBridge = CAShapeLayer()
     let secondBridge = CAShapeLayer()
@@ -112,8 +105,6 @@ public class GenesisController : UIViewController, Stepper {
     let firstBridgeBall = UIView()
     let secondBridgeBall = UIView()
     let thirdBridgeBall = UIView()
-    
-    let progressView = UIProgressView()
     
     var animating = false
     

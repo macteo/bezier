@@ -42,6 +42,7 @@ public class AnimationController : UIViewController {
     
     var startAnimationButton : UIButton!
     var resetAnimationButton : UIButton!
+    let progressView = UIProgressView()
     
     var timeBall : UIView!
     var controlBall : UIView!
@@ -53,23 +54,23 @@ public class AnimationController : UIViewController {
         controlPoint1 = CGPoint(x: 0, y: canvasSize)
         controlPoint2 = CGPoint(x: canvasSize, y: 0)
         
-        control1Label.textColor = .black
-        control2Label.textColor = .black
+        control1Label.textColor = purple
+        control2Label.textColor = purple
         
         control1Label.font = UIFont.systemFont(ofSize: 14)
         control2Label.font = UIFont.systemFont(ofSize: 14)
         
         canvas.frame = CGRect(x: padding, y: padding, width: canvasSize, height: canvasSize)
-        canvas.borderColor = UIColor.black.cgColor
+        canvas.borderColor = UIColor.purple.cgColor
         canvas.borderWidth = 1.0
         view.layer.addSublayer(canvas)
         
         verticalProjection.frame = CGRect(x: padding, y: padding, width: 1, height: canvasSize + ballPadding + ballSize / 2)
-        verticalProjection.backgroundColor = .black
+        verticalProjection.backgroundColor = purple
         view.addSubview(verticalProjection)
         
         horizontalProjection.frame = CGRect(x: padding, y: padding + canvasSize, width: canvasSize + ballPadding + ballSize, height: 1)
-        horizontalProjection.backgroundColor = .black
+        horizontalProjection.backgroundColor = purple
         view.addSubview(horizontalProjection)
         
         let pointSize : CGFloat = 6
@@ -110,7 +111,7 @@ public class AnimationController : UIViewController {
         
         ball = UIView(frame: CGRect(x: 0, y: 0, width: ballSize, height: ballSize))
         ball.layer.cornerRadius = ball.frame.size.width / 2
-        ball.backgroundColor = .red
+        ball.backgroundColor = green
         view.addSubview(ball)
         
         ball.center.x = canvasSize + padding + ballPadding + ballSize
@@ -118,24 +119,34 @@ public class AnimationController : UIViewController {
         
         timeBall = UIView(frame: CGRect(x: 0, y: 0, width: ballSize / 2, height: ballSize / 2))
         timeBall.layer.cornerRadius = timeBall.frame.size.width / 2
-        timeBall.backgroundColor = .orange
+        timeBall.backgroundColor = fuxia
         view.addSubview(timeBall)
         
         timeBall.center.y = canvasSize + padding + ballPadding + ballSize / 2
         timeBall.center.x = padding
         
-        startAnimationButton = UIButton(frame: CGRect(x: padding, y: canvasSize + padding + ballPadding + ballSize, width: 60, height: 44))
-        startAnimationButton.setTitle("Play", for: .normal)
-        startAnimationButton.addTarget(self, action:
-            #selector(animateBall), for: .touchUpInside)
-        startAnimationButton.setTitleColor(.black, for: .normal)
+        startAnimationButton = UIButton(frame: CGRect(x: 10, y: 20 + 44, width: 44, height: 44))
+        
+        let playImage = UIImage(named: "play")?.withRenderingMode(.alwaysTemplate)
+        startAnimationButton.setImage(playImage, for: .normal)
+        startAnimationButton.tintColor = blue
+        startAnimationButton.addTarget(self, action: #selector(animateBall), for: .touchUpInside)
+        startAnimationButton.autoresizingMask = .flexibleRightMargin
         view.addSubview(startAnimationButton)
         
-        resetAnimationButton = UIButton(frame: CGRect(x: padding * 2 + 60, y: canvasSize + padding + ballPadding + ballSize, width: 60, height: 44))
-        resetAnimationButton.setTitle("Reset", for: .normal)
+        resetAnimationButton = UIButton(frame: CGRect(x: view.frame.size.width - 10 - 44, y: 20 + 44, width: 44, height: 44))
+        let resetImage = UIImage(named: "reset")?.withRenderingMode(.alwaysTemplate)
+        resetAnimationButton.setImage(resetImage, for: .normal)
+        resetAnimationButton.tintColor = blue
         resetAnimationButton.addTarget(self, action: #selector(resetAnimation), for: .touchUpInside)
-        resetAnimationButton.setTitleColor(.black, for: .normal)
+        resetAnimationButton.autoresizingMask = .flexibleLeftMargin
         view.addSubview(resetAnimationButton)
+        
+        progressView.frame = CGRect(x: 10 * 2 + 44, y: 20 + 44 + 20, width: view.frame.size.width - (20 + 44) * 2, height: 6)
+        progressView.progressTintColor = blue
+        progressView.setProgress(0.0, animated: false)
+        progressView.autoresizingMask = .flexibleWidth
+        view.addSubview(progressView)
         
         controlBall = UIView(frame: CGRect(x: 0, y: 0, width: ballSize / 2, height: ballSize / 2))
         controlBall.layer.cornerRadius = controlBall.frame.size.width / 2
@@ -148,6 +159,7 @@ public class AnimationController : UIViewController {
     }
     
     func resetAnimation() {
+        progressView.setProgress(0, animated: false)
         self.ball.center.y = canvasSize + self.padding
         self.controlBall.center.y = canvasSize + self.padding
         self.horizontalProjection.center.y = self.padding + canvasSize
@@ -160,6 +172,7 @@ public class AnimationController : UIViewController {
         resetAnimation()
         self.resetAnimationButton.isEnabled = false
         self.startAnimationButton.isEnabled = false
+        progressView.progress = 1
         
         let animator = UIViewPropertyAnimator(duration: self.animationDuration, timingParameters: self.timingParameters)
         animator.addAnimations {
@@ -172,11 +185,13 @@ public class AnimationController : UIViewController {
             if completion == .end {
                 self.resetAnimationButton.isEnabled = true
                 self.startAnimationButton.isEnabled = true
+                self.progressView.setProgress(0, animated: false)
             }
         }
         animator.startAnimation()
         
         let animatorLinear = UIViewPropertyAnimator(duration: self.animationDuration, curve: .linear, animations: {
+            self.progressView.layoutIfNeeded()
             self.timeBall.center.x = self.self.canvasSize + self.padding
             self.controlBall.center.x = self.self.canvasSize + self.padding
             self.verticalProjection.center.x = self.padding + self.self.canvasSize
@@ -208,12 +223,12 @@ public class AnimationController : UIViewController {
         joinBezier.path = bezier.cgPath
         joinBezier.lineWidth = 3
         joinBezier.fillColor = UIColor.clear.cgColor
-        joinBezier.strokeColor = UIColor.orange.cgColor
+        joinBezier.strokeColor = fuxia.cgColor
         
         leftHandle.path = UIBezierPath(ovalIn: CGRect(x: controlPoint1.x, y: controlPoint1.y, width: handleSize, height: handleSize)).cgPath
         leftHandle.frame = CGRect(x: -handleSize / 2, y: -handleSize / 2, width: handleSize, height: handleSize)
         leftHandle.fillColor = UIColor.white.cgColor
-        leftHandle.strokeColor = UIColor.green.cgColor
+        leftHandle.strokeColor = green.cgColor
         leftHandle.lineWidth = 2
         
         rightHandle.path = UIBezierPath(ovalIn: CGRect(x: controlPoint2.x, y: controlPoint2.y, width: handleSize, height: handleSize)).cgPath
@@ -229,8 +244,8 @@ public class AnimationController : UIViewController {
         lefArm.frame = canvas.bounds
         lefArm.path = leftArmPath.cgPath
         lefArm.lineWidth = 3
-        lefArm.fillColor = UIColor.clear.cgColor
-        lefArm.strokeColor = UIColor.green.cgColor
+        lefArm.fillColor = UIColor.white.cgColor
+        lefArm.strokeColor = green.cgColor
         
         let rightArmPath = UIBezierPath()
         rightArmPath.move(to: CGPoint(x: canvasSize, y:0))
@@ -240,7 +255,7 @@ public class AnimationController : UIViewController {
         rightArm.frame = canvas.bounds
         rightArm.path = rightArmPath.cgPath
         rightArm.lineWidth = 3
-        rightArm.fillColor = UIColor.clear.cgColor
+        rightArm.fillColor = UIColor.white.cgColor
         rightArm.strokeColor = UIColor.blue.cgColor
     }
     

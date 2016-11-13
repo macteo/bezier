@@ -1,5 +1,13 @@
 import UIKit
 
+public let purple = "#5D68E6".color
+public let black = UIColor.black
+public let gray = "#F9F9F9".color
+public let lighterGray = UIColor.lightGray.withAlphaComponent(0.2)
+public let green = "#98C949".color
+public let fuxia = "#D34BC8".color
+public let blue = "#4990E2".color
+
 extension UIColor {
     public class var clientelingBlue: UIColor {
         return UIColor.colorWithRGB(rgbValue: 0x0072BC)
