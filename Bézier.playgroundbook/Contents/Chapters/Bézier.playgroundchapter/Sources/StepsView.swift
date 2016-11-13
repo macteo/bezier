@@ -75,6 +75,7 @@ public class StepsView : UIView {
         stepLabel.textAlignment = .center
         let stepFont = UIFont(descriptor: titleMonospacedNumbersFontDescriptor, size: 0.0)
         stepLabel.font = stepFont
+        stepLabel.autoresizingMask = .flexibleWidth
     }
     
     func forward() {

@@ -227,14 +227,12 @@ public class GenesisController : UIViewController, Stepper {
         view.addSubview(stepsView)
         
         view.layer.addSublayer(canvas)
-        
-        
     }
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        canvasSize = view.frame.width - padding * 2
+        canvasSize = 300
         startPoint = CGPoint(x: 0, y: canvasSize)
         endPoint = CGPoint(x: canvasSize, y: canvasSize / 2)
         
@@ -278,8 +276,8 @@ public class GenesisController : UIViewController, Stepper {
         let playImage = UIImage(named: "play")?.withRenderingMode(.alwaysTemplate)
         startAnimationButton.setImage(playImage, for: .normal)
         startAnimationButton.tintColor = blue
-        
         startAnimationButton.addTarget(self, action: #selector(animate), for: .touchUpInside)
+        startAnimationButton.autoresizingMask = .flexibleRightMargin
         view.addSubview(startAnimationButton)
         
         resetAnimationButton = UIButton(frame: CGRect(x: view.frame.size.width - 10 - 44, y: 20 + 44, width: 44, height: 44))
@@ -287,11 +285,13 @@ public class GenesisController : UIViewController, Stepper {
         resetAnimationButton.setImage(resetImage, for: .normal)
         resetAnimationButton.tintColor = blue
         resetAnimationButton.addTarget(self, action: #selector(resetAnimation), for: .touchUpInside)
+        resetAnimationButton.autoresizingMask = .flexibleLeftMargin
         view.addSubview(resetAnimationButton)
         
         progressView.frame = CGRect(x: 10 * 2 + 44, y: 20 + 44 + 20, width: view.frame.size.width - (20 + 44) * 2, height: 6)
         progressView.progressTintColor = blue
         progressView.setProgress(0.0, animated: false)
+        progressView.autoresizingMask = .flexibleWidth
         view.addSubview(progressView)
         
         canvas.addSublayer(firstBridge)
