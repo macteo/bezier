@@ -44,6 +44,15 @@ public class AnimationController : UIViewController {
     var resetAnimationButton : UIButton!
     let progressView = UIProgressView()
     
+    var easeButton : UIButton!
+    var linearButton : UIButton!
+    var easeInButton : UIButton!
+    var easeOutButton : UIButton!
+    var easeInOutButton : UIButton!
+    
+    var leftHandleView : UIView!
+    var rightHandleView : UIView!
+    
     var timeBall : UIView!
     var controlBall : UIView!
     
@@ -84,7 +93,7 @@ public class AnimationController : UIViewController {
         finalPoint.frame = CGRect(x: -pointSize / 2, y: -pointSize / 2, width: pointSize, height: pointSize)
         canvas.addSublayer(finalPoint)
         
-        let leftHandleView = UIView(frame: CGRect(x: controlPoint1.x + padding - 20, y: controlPoint1.y + padding - 20, width: 40, height: 40))
+        leftHandleView = UIView(frame: CGRect(x: controlPoint1.x + padding - 20, y: controlPoint1.y + padding - 20, width: 40, height: 40))
         leftHandleView.backgroundColor = .clear
         leftHandleView.tag = 1
         self.view.addSubview(leftHandleView)
@@ -92,7 +101,7 @@ public class AnimationController : UIViewController {
         leftHandleView.addGestureRecognizer(leftHandlePan)
         leftHandleView.addSubview(control1Label)
         
-        let rightHandleView = UIView(frame: CGRect(x: controlPoint2.x + padding - 20, y: controlPoint2.y + padding - 20, width: 40, height: 40))
+        rightHandleView = UIView(frame: CGRect(x: controlPoint2.x + padding - 20, y: controlPoint2.y + padding - 20, width: 40, height: 40))
         rightHandleView.backgroundColor = .clear
         rightHandleView.tag = 2
         self.view.addSubview(rightHandleView)
@@ -125,7 +134,7 @@ public class AnimationController : UIViewController {
         timeBall.center.y = canvasSize + padding + ballPadding + ballSize / 2
         timeBall.center.x = padding
         
-        startAnimationButton = UIButton(frame: CGRect(x: 10, y: 20 + 44, width: 44, height: 44))
+        startAnimationButton = UIButton(frame: CGRect(x: 10, y: 44, width: 44, height: 44))
         
         let playImage = UIImage(named: "play")?.withRenderingMode(.alwaysTemplate)
         startAnimationButton.setImage(playImage, for: .normal)
@@ -134,7 +143,7 @@ public class AnimationController : UIViewController {
         startAnimationButton.autoresizingMask = .flexibleRightMargin
         view.addSubview(startAnimationButton)
         
-        resetAnimationButton = UIButton(frame: CGRect(x: view.frame.size.width - 10 - 44, y: 20 + 44, width: 44, height: 44))
+        resetAnimationButton = UIButton(frame: CGRect(x: view.frame.size.width - 10 - 44, y: 44, width: 44, height: 44))
         let resetImage = UIImage(named: "reset")?.withRenderingMode(.alwaysTemplate)
         resetAnimationButton.setImage(resetImage, for: .normal)
         resetAnimationButton.tintColor = blue
@@ -142,7 +151,7 @@ public class AnimationController : UIViewController {
         resetAnimationButton.autoresizingMask = .flexibleLeftMargin
         view.addSubview(resetAnimationButton)
         
-        progressView.frame = CGRect(x: 10 * 2 + 44, y: 20 + 44 + 20, width: view.frame.size.width - (20 + 44) * 2, height: 6)
+        progressView.frame = CGRect(x: 10 * 2 + 44, y: 44 + 20, width: view.frame.size.width - (20 + 44) * 2, height: 6)
         progressView.progressTintColor = blue
         progressView.setProgress(0.0, animated: false)
         progressView.autoresizingMask = .flexibleWidth
@@ -156,6 +165,108 @@ public class AnimationController : UIViewController {
         controlBall.center.y = canvasSize + padding
         controlBall.center.x = padding
         controlBall.isUserInteractionEnabled = false
+        
+        drawEaseButtons()
+    }
+    
+    func drawEaseButtons() {
+        easeButton = UIButton(frame: CGRect(x: padding, y: padding + canvasSize + 64, width: 44, height: 44))
+        let easeImage = UIImage(named: "ease")?.withRenderingMode(.alwaysTemplate)
+        easeButton.setImage(easeImage, for: .normal)
+        easeButton.tintColor = blue
+        easeButton.addTarget(self, action: #selector(setEase), for: .touchUpInside)
+        easeButton.autoresizingMask = [.flexibleRightMargin]
+        easeButton.layer.borderColor = blue.cgColor
+        easeButton.layer.borderWidth = 1
+        easeButton.layer.cornerRadius = 6
+        view.addSubview(easeButton)
+        
+        linearButton = UIButton(frame: CGRect(x: padding + 20 + 44, y: padding + canvasSize + 64, width: 44, height: 44))
+        let linearImage = UIImage(named: "linear")?.withRenderingMode(.alwaysTemplate)
+        linearButton.setImage(linearImage, for: .normal)
+        linearButton.tintColor = blue
+        linearButton.addTarget(self, action: #selector(setLinear), for: .touchUpInside)
+        linearButton.autoresizingMask = [.flexibleRightMargin]
+        linearButton.layer.borderColor = blue.cgColor
+        linearButton.layer.borderWidth = 1
+        linearButton.layer.cornerRadius = 6
+        view.addSubview(linearButton)
+
+        easeInButton = UIButton(frame: CGRect(x: padding + (20 + 44) * 2, y: padding + canvasSize + 64, width: 44, height: 44))
+        let easeInImage = UIImage(named: "ease in")?.withRenderingMode(.alwaysTemplate)
+        easeInButton.setImage(easeInImage, for: .normal)
+        easeInButton.tintColor = blue
+        easeInButton.addTarget(self, action: #selector(setEaseIn), for: .touchUpInside)
+        easeInButton.autoresizingMask = [.flexibleRightMargin]
+        easeInButton.layer.borderColor = blue.cgColor
+        easeInButton.layer.borderWidth = 1
+        easeInButton.layer.cornerRadius = 6
+        view.addSubview(easeInButton)
+
+        easeOutButton = UIButton(frame: CGRect(x: padding + (20 + 44) * 3, y: padding + canvasSize + 64, width: 44, height: 44))
+        let easeOutImage = UIImage(named: "ease out")?.withRenderingMode(.alwaysTemplate)
+        easeOutButton.setImage(easeOutImage, for: .normal)
+        easeOutButton.tintColor = blue
+        easeOutButton.addTarget(self, action: #selector(setEaseOut), for: .touchUpInside)
+        easeOutButton.autoresizingMask = [.flexibleRightMargin]
+        easeOutButton.layer.borderColor = blue.cgColor
+        easeOutButton.layer.borderWidth = 1
+        easeOutButton.layer.cornerRadius = 6
+        view.addSubview(easeOutButton)
+        
+        easeInOutButton = UIButton(frame: CGRect(x: padding + (20 + 44) * 4, y: padding + canvasSize + 64, width: 44, height: 44))
+        let easeInOutImage = UIImage(named: "ease in out")?.withRenderingMode(.alwaysTemplate)
+        easeInOutButton.setImage(easeInOutImage, for: .normal)
+        easeInOutButton.tintColor = blue
+        easeInOutButton.addTarget(self, action: #selector(setEaseInOut), for: .touchUpInside)
+        easeInOutButton.autoresizingMask = [.flexibleRightMargin]
+        easeInOutButton.layer.borderColor = blue.cgColor
+        easeInOutButton.layer.borderWidth = 1
+        easeInOutButton.layer.cornerRadius = 6
+        view.addSubview(easeInOutButton)
+    }
+    
+    func setLinear() {
+        controlPoint1 = CGPoint(x: 0 * canvasSize, y: 1 * canvasSize)
+        controlPoint2 = CGPoint(x: 1 * canvasSize, y: 0 * canvasSize)
+        alignHandleView()
+        drawLayers()
+    }
+
+    func setEase() {
+        controlPoint1 = CGPoint(x: 0.25 * canvasSize, y: 0.9 * canvasSize)
+        controlPoint2 = CGPoint(x: 0.25 * canvasSize, y: 0 * canvasSize)
+        alignHandleView()
+        drawLayers()
+    }
+    
+    func setEaseIn() {
+        controlPoint1 = CGPoint(x: 0.42 * canvasSize, y: 1 * canvasSize)
+        controlPoint2 = CGPoint(x: 1 * canvasSize, y: 0 * canvasSize)
+        alignHandleView()
+        drawLayers()
+    }
+    
+    func setEaseOut() {
+        controlPoint1 = CGPoint(x: 0 * canvasSize, y: 1 * canvasSize)
+        controlPoint2 = CGPoint(x: 0.58 * canvasSize, y: 0 * canvasSize)
+        alignHandleView()
+        drawLayers()
+    }
+    
+    func setEaseInOut() {
+        controlPoint1 = CGPoint(x: 0.42 * canvasSize, y: 1 * canvasSize)
+        controlPoint2 = CGPoint(x: 0.58 * canvasSize, y: 0 * canvasSize)
+        alignHandleView()
+        drawLayers()
+    }
+    
+    func alignHandleView() {
+        control1Label.text = "\(control1.x.format(d: 2)), \(control1.y.format(d: 2))"
+        control2Label.text = "\(control2.x.format(d: 2)), \(control2.y.format(d: 2))"
+    
+        leftHandleView.center = padded(controlPoint1)
+        rightHandleView.center = padded(controlPoint2)
     }
     
     func resetAnimation() {
@@ -259,6 +370,14 @@ public class AnimationController : UIViewController {
         rightArm.strokeColor = UIColor.blue.cgColor
     }
     
+    func padded(_ point: CGPoint) -> CGPoint {
+        return CGPoint(x: point.x + padding, y: point.y + padding)
+    }
+    
+    func unpadded(_ point: CGPoint) -> CGPoint {
+        return CGPoint(x: point.x - padding, y: point.y - padding)
+    }
+    
     func pan(gesture: UIPanGestureRecognizer) {
         switch (gesture.state) {
         case .changed:
@@ -285,10 +404,10 @@ public class AnimationController : UIViewController {
             if y > view.bounds.size.height - padding { y = view.bounds.size.height - padding }
             point = CGPoint(x: x, y: y)
             if gesture.view?.tag == 1 {
-                control1Label.text = "\(control1.x.format(d: 1)), \(control1.y.format(d: 1))"
+                control1Label.text = "\(control1.x.format(d: 2)), \(control1.y.format(d: 2))"
                 controlPoint1 = point
             } else {
-                control2Label.text = "\(control2.x.format(d: 1)), \(control2.y.format(d: 1))"
+                control2Label.text = "\(control2.x.format(d: 2)), \(control2.y.format(d: 2))"
                 controlPoint2 = point
             }
             
