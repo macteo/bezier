@@ -26,8 +26,13 @@ public enum DrawStep : Int {
     }
 }
 
+let mapboxAccessToken = "pk.eyJ1IjoibWFjdGVvIiwiYSI6ImNpdm05bzMxeTAwaXYyenBwcWo1ZXg4dDAifQ.nEfQR4wsks-C6VonIs3auQ"
+
 public class DrawController : UIViewController, Stepper {
-    public var step: Int = 1 {
+    var locations = [CLLocationCoordinate2D]()
+    
+    var _step = DrawStep.fifth
+    public var step: Int = 5 {
         didSet {
             guard let drawStep = DrawStep(rawValue: step) else {
                 stepsView.currentStep = oldValue
@@ -40,13 +45,12 @@ public class DrawController : UIViewController, Stepper {
     
     let imageView = UIImageView()
     
-    var _step = DrawStep.first
-    
     var stepsView : StepsView!
     
     let steps : [DrawStep] = [.first, .second, .third, .fourth, .fifth]
     
     let graphicsView = GraphicsView()
+    let pathView = PathView()
     
     func updateStep() {
         switch _step {
@@ -65,7 +69,7 @@ public class DrawController : UIViewController, Stepper {
             graphicsView.showHandles = true
             imageView.isHidden = true
         case .fourth:
-            graphicsView.showCurve = true
+            graphicsView.showCurve = false
             graphicsView.showHandles = true
             imageView.isHidden = false
         case .fifth:
@@ -95,6 +99,13 @@ public class DrawController : UIViewController, Stepper {
         graphicsView.interpolationPoints = []
         graphicsView.setNeedsDisplay()
         
+        pathView.frame = view.bounds
+        pathView.backgroundColor = .clear
+        pathView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        view.addSubview(pathView)
+        pathView.interpolationPoints = []
+        pathView.setNeedsDisplay()
+        
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(gesture:)))
         tapGestureRecognizer.numberOfTapsRequired = 1
         tapGestureRecognizer.numberOfTouchesRequired = 1
@@ -112,6 +123,38 @@ public class DrawController : UIViewController, Stepper {
         view.addSubview(stepsView)
         updateStep()
     }
+
+    func matchRoute() {
+        guard UIApplication.shared.applicationState == .active else { return }
+        
+        let options = MapMatchOptions()
+        options.profile = .walking
+        
+        guard locations.count >= 2 else { return }
+        
+        let matcher = MapMatcher(accessToken: mapboxAccessToken)
+        
+        print(locations)
+        
+        let _ = matcher.match(coordinates: locations, options: options) { (routes, attribution, error) in
+            guard error == nil else {
+                print("Error \(error!.localizedDescription)")
+                return
+            }
+            guard let routes = routes else {
+                print("No routes found")
+                return
+            }
+            
+            let merge = routes.flatMap { $0 }
+            let points = merge.map { self.point(coordinate: $0) }
+            self.pathView.interpolationPoints = points
+            
+            DispatchQueue.main.async {
+                self.pathView.layoutIfNeeded()
+            }
+        }
+    }
     
     func coordinate(point: CGPoint) -> CLLocationCoordinate2D {
         
@@ -121,7 +164,13 @@ public class DrawController : UIViewController, Stepper {
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
     
-    // SW(45.887759, 11.029820) - NE(45.897261, 11.047974)
+    func point(coordinate: CLLocationCoordinate2D) -> CGPoint {
+        
+        let x : CGFloat = CGFloat(coordinate.latitude - 45.887759) / (45.897261 - 45.887759) * 1024
+        let y : CGFloat = -CGFloat(coordinate.longitude - 11.047974) / (11.047974 - 11.029820) * 768
+        
+        return CGPoint(x: x, y: y)
+    }
     
     func tap(gesture: UITapGestureRecognizer) {
         let point = gesture.location(in: graphicsView)
@@ -129,11 +178,22 @@ public class DrawController : UIViewController, Stepper {
         graphicsView.setNeedsDisplay()
         
         let coordinate = self.coordinate(point: point)
-        print("coordinate \(coordinate) - point \(point)")
+        print("AAA coordinate \(coordinate) - point \(point)")
+        
+        locations.append(coordinate)
+        
+        let inversePoint = self.point(coordinate: coordinate)
+        
+        print("BBB coordinate \(coordinate) - point \(inversePoint)")
+        
+        if _step == .fifth {
+            matchRoute()
+        }
     }
     
     func longPress(gesture: UILongPressGestureRecognizer) {
         graphicsView.interpolationPoints.removeAll()
         graphicsView.setNeedsDisplay()
+        locations.removeAll()
     }
 }
