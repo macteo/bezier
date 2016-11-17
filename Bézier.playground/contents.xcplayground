@@ -4,5 +4,7 @@
         <page name='Genesis'/>
         <page name='Interpolation'/>
         <page name='Animation'/>
+        <page name='Live'/>
+        <page name='Spring'/>
     </pages>
 </playground>

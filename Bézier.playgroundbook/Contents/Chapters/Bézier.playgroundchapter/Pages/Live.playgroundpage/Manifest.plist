@@ -4,16 +4,12 @@
 <dict>
 	<key>ContentVersion</key>
 	<string>1.0</string>
+	<key>LiveViewEdgeToEdge</key>
+	<true/>
+	<key>LiveViewMode</key>
+	<string>VisibleByDefault</string>
 	<key>Name</key>
-	<string>Bézier</string>
-	<key>Pages</key>
-	<array>
-		<string>Genesis.playgroundpage</string>
-		<string>Interpolation.playgroundpage</string>
-		<string>Animation.playgroundpage</string>
-		<string>Live.playgroundpage</string>
-		<string>Spring.playgroundpage</string>
-	</array>
+	<string>Live</string>
 	<key>Version</key>
 	<string>1.0</string>
 </dict>
