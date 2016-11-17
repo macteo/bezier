@@ -95,7 +95,6 @@ public class GenesisController : UIViewController, Stepper {
     let armsConnectionBall = UIView()
     
     var startAnimationButton : UIButton!
-    var resetAnimationButton : UIButton!
     let progressView = UIProgressView()
     
     let firstBridge = CAShapeLayer()
@@ -212,9 +211,9 @@ public class GenesisController : UIViewController, Stepper {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        stepsView = StepsView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 44))
+        stepsView = StepsView(frame: CGRect(x: 0, y: view.frame.size.height - 44, width: view.frame.size.width, height: 44))
         stepsView.delegate = self
-        stepsView.autoresizingMask = .flexibleWidth
+        stepsView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         stepsView.stepsCount = steps.count
         stepsView.currentStep = _step.rawValue
         view.addSubview(stepsView)
@@ -225,18 +224,18 @@ public class GenesisController : UIViewController, Stepper {
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        canvasSize = 300
-        startPoint = CGPoint(x: 0, y: canvasSize)
-        endPoint = CGPoint(x: canvasSize, y: canvasSize / 2)
+        canvasSize = view.frame.size.width - padding * 2
+        startPoint = CGPoint(x: 0, y: canvasSize / 5 * 3)
+        endPoint = CGPoint(x: canvasSize, y: canvasSize / 3)
         
-        controlPoint1 = CGPoint(x: 0, y: canvasSize / 2)
-        controlPoint2 = CGPoint(x: canvasSize / 2, y: canvasSize / 3)
+        controlPoint1 = CGPoint(x: 0, y: canvasSize / 3)
+        controlPoint2 = CGPoint(x: canvasSize / 2, y: canvasSize / 5)
         
         canvas.frame = CGRect(x: padding, y: padding, width: canvasSize, height: canvasSize)
         canvas.borderColor = UIColor.white.cgColor
         canvas.borderWidth = 0.0
         
-        let pointSize : CGFloat = 8
+        let pointSize : CGFloat = 12
         let originPoint = CAShapeLayer()
         originPoint.path = UIBezierPath(ovalIn: CGRect(x: startPoint.x, y: startPoint.y, width: pointSize, height: pointSize)).cgPath
         originPoint.frame = CGRect(x: -pointSize / 2, y: -pointSize / 2, width: pointSize, height: pointSize)
@@ -273,15 +272,7 @@ public class GenesisController : UIViewController, Stepper {
         startAnimationButton.autoresizingMask = .flexibleRightMargin
         view.addSubview(startAnimationButton)
         
-        resetAnimationButton = UIButton(frame: CGRect(x: view.frame.size.width - 10 - 44, y: 20 + 44, width: 44, height: 44))
-        let resetImage = UIImage(named: "reset")?.withRenderingMode(.alwaysTemplate)
-        resetAnimationButton.setImage(resetImage, for: .normal)
-        resetAnimationButton.tintColor = blue
-        resetAnimationButton.addTarget(self, action: #selector(resetAnimation), for: .touchUpInside)
-        resetAnimationButton.autoresizingMask = .flexibleLeftMargin
-        view.addSubview(resetAnimationButton)
-        
-        progressView.frame = CGRect(x: 10 * 2 + 44, y: 20 + 44 + 20, width: view.frame.size.width - (20 + 44) * 2, height: 6)
+        progressView.frame = CGRect(x: 10 * 2 + 44, y: 20 + 44 + 20, width: view.frame.size.width - 30 - 44, height: 6)
         progressView.progressTintColor = blue
         progressView.setProgress(0.0, animated: false)
         progressView.autoresizingMask = .flexibleWidth
@@ -352,7 +343,7 @@ public class GenesisController : UIViewController, Stepper {
         armsConnection.path = armsConnectionPath.cgPath
         armsConnection.lineWidth = 1
         
-        let armBallSize : CGFloat = 6
+        let armBallSize : CGFloat = 10
         
         leftArmBall.frame = CGRect(x: padding + startPoint.x - armBallSize / 2, y: padding + startPoint.y - armBallSize / 2, width: armBallSize, height: armBallSize)
         leftArmBall.layer.cornerRadius = armBallSize / 2
@@ -441,7 +432,6 @@ public class GenesisController : UIViewController, Stepper {
         
         stepsView.enabled = false
         
-        resetAnimationButton.isEnabled = false
         startAnimationButton.isEnabled = false
         
         joinBezier.strokeStart = 0.0
@@ -479,7 +469,6 @@ public class GenesisController : UIViewController, Stepper {
         
         animatorLinear.addCompletion {
             _ in
-            self.resetAnimationButton.isEnabled = true
             self.startAnimationButton.isEnabled = true
             self.firstBridge.path = firstBridgePath.cgPath
             self.secondBridge.path = secondBridgePath.cgPath

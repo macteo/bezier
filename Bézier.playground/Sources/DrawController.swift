@@ -9,6 +9,7 @@ public enum DrawStep : Int {
     case third   = 3
     case fourth  = 4
     case fifth   = 5
+    case sixth   = 6
     
     var string : String {
         switch self {
@@ -22,11 +23,13 @@ public enum DrawStep : Int {
             return "4"
         case .fifth:
             return "5"
+        case .sixth:
+            return "6"
         }
     }
 }
 
-let mapboxAccessToken = "YOUR-MAPBOX-TOKEN"
+let mapboxAccessToken = "pk.eyJ1IjoibWFjdGVvIiwiYSI6ImNpdm05bzMxeTAwaXYyenBwcWo1ZXg4dDAifQ.nEfQR4wsks-C6VonIs3auQ"
 
 public class DrawController : UIViewController, Stepper {
     var locations = [CLLocationCoordinate2D]()
@@ -47,7 +50,7 @@ public class DrawController : UIViewController, Stepper {
     
     var stepsView : StepsView!
     
-    let steps : [DrawStep] = [.first, .second, .third, .fourth, .fifth]
+    let steps : [DrawStep] = [.first, .second, .third, .fourth, .fifth, .sixth]
     
     let graphicsView = GraphicsView()
     let pathView = PathView()
@@ -73,6 +76,11 @@ public class DrawController : UIViewController, Stepper {
             graphicsView.showHandles = true
             imageView.isHidden = false
         case .fifth:
+            graphicsView.showCurve = true
+            graphicsView.showHandles = true
+            imageView.isHidden = false
+            break;
+        case .sixth:
             graphicsView.showCurve = true
             graphicsView.showHandles = true
             imageView.isHidden = false
@@ -115,20 +123,29 @@ public class DrawController : UIViewController, Stepper {
         longPressGestureRecognizer.numberOfTouchesRequired = 1
         view.addGestureRecognizer(longPressGestureRecognizer)
         
-        stepsView = StepsView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 44))
+        stepsView = StepsView(frame: CGRect(x: 0, y: view.frame.size.height - 44, width: view.frame.size.width, height: 44))
         stepsView.delegate = self
-        stepsView.autoresizingMask = .flexibleWidth
+        stepsView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         stepsView.stepsCount = steps.count
         stepsView.currentStep = _step.rawValue
         view.addSubview(stepsView)
         updateStep()
     }
+    
+    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        pathView.setNeedsDisplay()
+        graphicsView.setNeedsDisplay()
+        
+        coordinator.animate(alongsideTransition: { (context) in
+            self.imageView.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        }, completion: nil)
+    }
 
     func matchRoute() {
-        guard UIApplication.shared.applicationState == .active else { return }
-        
         let options = MapMatchOptions()
-        options.profile = .walking
+        options.profile = .driving
         
         guard locations.count >= 2 else { return }
         
@@ -184,13 +201,9 @@ public class DrawController : UIViewController, Stepper {
         graphicsView.setNeedsDisplay()
         
         let coordinate = self.coordinate(point: point)
-        print("AAA coordinate \(coordinate) - point \(point)")
-        
         locations.append(coordinate)
-        
-        let inversePoint = self.point(coordinate: coordinate)
-        print("BBB coordinate \(coordinate) - point \(inversePoint)")
-        if _step == .fifth {
+
+        if _step == .sixth {
             matchRoute()
         }
     }

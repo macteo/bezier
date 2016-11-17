@@ -1,7 +1,6 @@
 name: Bézier
 identifier: it.macteo.bezier
-# resources: assets # Optional
-# cover: cover.jpeg # Optional
+cover: bezier.jpg
 deployment_target: ios10.0
 imports:
  - UIKit

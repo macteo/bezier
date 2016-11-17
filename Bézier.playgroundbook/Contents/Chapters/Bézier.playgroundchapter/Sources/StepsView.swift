@@ -43,10 +43,10 @@ public class StepsView : UIView {
     }
     
     func commonInit() {
-        backgroundColor = .white
+        backgroundColor = .clear
         
-        backButton.frame = CGRect(x: padding, y: padding, width: buttonSize, height: buttonSize)
-        forwardButton.frame = CGRect(x: frame.size.width - padding - buttonSize, y: padding, width: buttonSize, height: buttonSize)
+        backButton.frame = CGRect(x: padding, y: 0, width: buttonSize, height: buttonSize)
+        forwardButton.frame = CGRect(x: frame.size.width - padding - buttonSize, y: 0, width: buttonSize, height: buttonSize)
         
         backButton.autoresizingMask = .flexibleRightMargin
         forwardButton.autoresizingMask = .flexibleLeftMargin
@@ -70,12 +70,12 @@ public class StepsView : UIView {
         stepLabel.autoresizingMask = .flexibleWidth
         addSubview(stepLabel)
         
-        stepLabel.text = "Step: 1"
+        stepLabel.text = "1"
         stepLabel.textColor = blue
         stepLabel.textAlignment = .center
-        let stepFont = UIFont(descriptor: titleMonospacedNumbersFontDescriptor, size: 0.0)
+        let stepFont = UIFont.systemFont(ofSize: 10)
         stepLabel.font = stepFont
-        stepLabel.autoresizingMask = .flexibleWidth
+        stepLabel.autoresizingMask = [.flexibleRightMargin, .flexibleLeftMargin]
     }
     
     func forward() {
@@ -117,6 +117,6 @@ public class StepsView : UIView {
             forwardButton.isEnabled = true
             backButton.isEnabled = true
         }
-        stepLabel.text = "Step: \(currentStep)"
+        stepLabel.text = "\(currentStep)"
     }
 }
