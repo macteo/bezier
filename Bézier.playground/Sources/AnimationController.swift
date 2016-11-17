@@ -109,12 +109,12 @@ public class AnimationController : UIViewController {
         rightHandleView.addGestureRecognizer(rightHandlePan)
         rightHandleView.addSubview(control2Label)
         
+        canvas.addSublayer(joinBezier)
+        
         canvas.addSublayer(lefArm)
         canvas.addSublayer(leftHandle)
         canvas.addSublayer(rightArm)
         canvas.addSublayer(rightHandle)
-        
-        canvas.addSublayer(joinBezier)
         
         drawLayers()
         
@@ -134,27 +134,27 @@ public class AnimationController : UIViewController {
         timeBall.center.y = canvasSize + padding + ballPadding + ballSize / 2
         timeBall.center.x = padding
         
-        startAnimationButton = UIButton(frame: CGRect(x: 10, y: 44, width: 44, height: 44))
+        startAnimationButton = UIButton(frame: CGRect(x: 10, y: view.frame.size.height - 64, width: 44, height: 44))
         
         let playImage = UIImage(named: "play")?.withRenderingMode(.alwaysTemplate)
         startAnimationButton.setImage(playImage, for: .normal)
         startAnimationButton.tintColor = blue
         startAnimationButton.addTarget(self, action: #selector(animateBall), for: .touchUpInside)
-        startAnimationButton.autoresizingMask = .flexibleRightMargin
+        startAnimationButton.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
         view.addSubview(startAnimationButton)
         
-        resetAnimationButton = UIButton(frame: CGRect(x: view.frame.size.width - 10 - 44, y: 44, width: 44, height: 44))
+        resetAnimationButton = UIButton(frame: CGRect(x: view.frame.size.width - 10 - 44, y: view.frame.size.height - 64, width: 44, height: 44))
         let resetImage = UIImage(named: "reset")?.withRenderingMode(.alwaysTemplate)
         resetAnimationButton.setImage(resetImage, for: .normal)
         resetAnimationButton.tintColor = blue
         resetAnimationButton.addTarget(self, action: #selector(resetAnimation), for: .touchUpInside)
-        resetAnimationButton.autoresizingMask = .flexibleLeftMargin
+        resetAnimationButton.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
         view.addSubview(resetAnimationButton)
         
-        progressView.frame = CGRect(x: 10 * 2 + 44, y: 44 + 20, width: view.frame.size.width - (20 + 44) * 2, height: 6)
+        progressView.frame = CGRect(x: 10 * 2 + 44, y: view.frame.size.height - 20, width: view.frame.size.width - (20 + 44) * 2, height: 6)
         progressView.progressTintColor = blue
         progressView.setProgress(0.0, animated: false)
-        progressView.autoresizingMask = .flexibleWidth
+        progressView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(progressView)
         
         controlBall = UIView(frame: CGRect(x: 0, y: 0, width: ballSize / 2, height: ballSize / 2))

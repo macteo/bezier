@@ -1,11 +1,13 @@
 //: **Interpolation**: where do you set control points?
 
-//#-hidden-code
+//#-live-view
 import UIKit
 import PlaygroundSupport
 
-PlaygroundPage.current.liveView = DrawController()
-//#-end-hidden-code
+let drawController = DrawController()
+drawController.view.frame = CGRect(x: 0, y: 0, width: 1024, height: 768)
+PlaygroundPage.current.liveView = drawController.view
+//#-end-live-view
 
 //#-editable-code
 

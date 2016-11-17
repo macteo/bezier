@@ -34,7 +34,7 @@ public class GraphicsView : UIView {
         
         let dashedPattern : [CGFloat] = [3, 3, 3, 3]
         dashedConnectors.setLineDash(dashedPattern, count: 4, phase: 0.0)
-        dashedConnectors.lineWidth = 1
+        dashedConnectors.lineWidth = 2
         UIColor(colorLiteralRed: 0.4, green: 0.4, blue: 0.4, alpha: 1).setStroke()
         dashedConnectors.stroke()
         
@@ -84,7 +84,8 @@ public class GraphicsView : UIView {
                     handle.addLine(to: interpolationPoints[0])
                 }
             }
-            handle.lineWidth = 1 / UIScreen.main.scale
+            // handle.lineWidth = 1 / UIScreen.main.scale
+            handle.lineWidth = 2
             UIColor(colorLiteralRed: 0.4, green: 0.4, blue: 0.4, alpha: 1).setStroke()
             handle.stroke()
             

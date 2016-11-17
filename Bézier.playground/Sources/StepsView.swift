@@ -43,7 +43,7 @@ public class StepsView : UIView {
     }
     
     func commonInit() {
-        backgroundColor = .white
+        backgroundColor = .clear
         
         backButton.frame = CGRect(x: padding, y: padding, width: buttonSize, height: buttonSize)
         forwardButton.frame = CGRect(x: frame.size.width - padding - buttonSize, y: padding, width: buttonSize, height: buttonSize)
@@ -107,9 +107,11 @@ public class StepsView : UIView {
     func update() {
         if currentStep == 1 {
             forwardButton.isEnabled = true
-            backButton.isEnabled = false
+            // backButton.isEnabled = false
+            backButton.isEnabled = true
         } else if currentStep == stepsCount {
-            forwardButton.isEnabled = false
+            forwardButton.isEnabled = true
+            // forwardButton.isEnabled = false
             backButton.isEnabled = true
         } else {
             forwardButton.isEnabled = true

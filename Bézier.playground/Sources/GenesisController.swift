@@ -135,7 +135,9 @@ public class GenesisController : UIViewController, Stepper {
             switch _step {
             case .first:
                 return (.clear, .clear)
-            case .second, .fourth, .fifth, .sixth, .seventh:
+            case .second:
+                return (black, lighterGray)
+            case .fourth, .fifth, .sixth, .seventh:
                 return (.clear, lighterGray)
             case .third, .eight:
                 return (black, lighterGray)

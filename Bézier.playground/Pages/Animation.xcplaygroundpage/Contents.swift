@@ -1,11 +1,11 @@
 //: **Timing Functions** the key ingredient to design great animations
 
-//#-hidden-code
+//#-live-view
 import UIKit
 import PlaygroundSupport
 
 PlaygroundPage.current.liveView = AnimationController()
-//#-end-hidden-code
+//#-end-live-view
 
 /*:
  Ciao come va?
