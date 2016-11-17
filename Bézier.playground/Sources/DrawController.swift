@@ -26,13 +26,13 @@ public enum DrawStep : Int {
     }
 }
 
-let mapboxAccessToken = "pk.eyJ1IjoibWFjdGVvIiwiYSI6ImNpdm05bzMxeTAwaXYyenBwcWo1ZXg4dDAifQ.nEfQR4wsks-C6VonIs3auQ"
+let mapboxAccessToken = "YOUR-MAPBOX-TOKEN"
 
 public class DrawController : UIViewController, Stepper {
     var locations = [CLLocationCoordinate2D]()
     
-    var _step = DrawStep.fifth
-    public var step: Int = 5 {
+    var _step = DrawStep.first
+    public var step: Int = 1 {
         didSet {
             guard let drawStep = DrawStep(rawValue: step) else {
                 stepsView.currentStep = oldValue
@@ -134,15 +134,21 @@ public class DrawController : UIViewController, Stepper {
         
         let matcher = MapMatcher(accessToken: mapboxAccessToken)
         
-        print(locations)
-        
         let _ = matcher.match(coordinates: locations, options: options) { (routes, attribution, error) in
             guard error == nil else {
                 print("Error \(error!.localizedDescription)")
+                self.pathView.interpolationPoints.removeAll()
+                DispatchQueue.main.async {
+                    self.pathView.setNeedsDisplay()
+                }
                 return
             }
             guard let routes = routes else {
                 print("No routes found")
+                self.pathView.interpolationPoints.removeAll()
+                DispatchQueue.main.async {
+                    self.pathView.setNeedsDisplay()
+                }
                 return
             }
             
@@ -151,23 +157,23 @@ public class DrawController : UIViewController, Stepper {
             self.pathView.interpolationPoints = points
             
             DispatchQueue.main.async {
-                self.pathView.layoutIfNeeded()
+                self.pathView.setNeedsDisplay()
             }
         }
     }
     
     func coordinate(point: CGPoint) -> CLLocationCoordinate2D {
         
-        let latitude : Double = 45.887759 + (45.897261 - 45.887759) * Double(point.x) / 1024
-        let longitude : Double = 11.047974 - (11.047974 - 11.029820) * Double(point.y) / 768
+        let latitude : Double = 45.897261 - (45.897261 - 45.887759) * Double(point.y) / 768
+        let longitude : Double = 11.029820 + (11.047974 - 11.029820) * Double(point.x) / 1024
         
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
     
     func point(coordinate: CLLocationCoordinate2D) -> CGPoint {
         
-        let x : CGFloat = CGFloat(coordinate.latitude - 45.887759) / (45.897261 - 45.887759) * 1024
-        let y : CGFloat = -CGFloat(coordinate.longitude - 11.047974) / (11.047974 - 11.029820) * 768
+        let y : CGFloat = CGFloat(45.887759 - coordinate.latitude) / (45.897261 - 45.887759) * 768 + 768
+        let x : CGFloat = CGFloat(coordinate.longitude - 11.029820) / (11.047974 - 11.029820) * 1024
         
         return CGPoint(x: x, y: y)
     }
@@ -183,9 +189,7 @@ public class DrawController : UIViewController, Stepper {
         locations.append(coordinate)
         
         let inversePoint = self.point(coordinate: coordinate)
-        
         print("BBB coordinate \(coordinate) - point \(inversePoint)")
-        
         if _step == .fifth {
             matchRoute()
         }
@@ -195,5 +199,7 @@ public class DrawController : UIViewController, Stepper {
         graphicsView.interpolationPoints.removeAll()
         graphicsView.setNeedsDisplay()
         locations.removeAll()
+        pathView.interpolationPoints.removeAll()
+        pathView.setNeedsDisplay()
     }
 }
